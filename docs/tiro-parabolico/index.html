@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tiro Parabólico en La Paz</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: cuaderno de laboratorio — panel de parámetros a la izquierda, gráfica sobre papel milimetrado a la derecha */
+:root{
+  --paper:#f3f5f2; --sheet:#fbfcfa; --ink:#1d2a33; --muted:#5a6873;
+  --grid:#d4dfd8; --grid-strong:#b6c8bd;
+  --vac:#2f5fa8; --air:#c4661c; --ok:#2e7d4f; --warn:#a33a2a; --line:#cfd8d2;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#11181c; --sheet:#162026; --ink:#e3ebe6; --muted:#9aa9b1;
+  --grid:#22313a; --grid-strong:#2f434e; --vac:#7aa7ec; --air:#f0a35e; --ok:#6cc391; --warn:#ef8a78; --line:#2b3b44; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#11181c; --sheet:#162026; --ink:#e3ebe6; --muted:#9aa9b1;
+  --grid:#22313a; --grid-strong:#2f434e; --vac:#7aa7ec; --air:#f0a35e; --ok:#6cc391; --warn:#ef8a78; --line:#2b3b44; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:18px}
+header h1{font-family:var(--f-display);font-weight:800;font-size:clamp(1.6rem,3.4vw,2.4rem);line-height:1.1;margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:.4rem 0 0;color:var(--muted);max-width:70ch}
+.eq{font-family:var(--f-mono);font-size:.86rem;background:var(--sheet);border:1px solid var(--line);border-radius:6px;padding:.5rem .75rem;display:inline-block;margin-top:.6rem;overflow-x:auto;max-width:100%}
+.main{display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start}
+@media (max-width:860px){.main{grid-template-columns:1fr}}
+.panel{background:var(--sheet);border:1px solid var(--line);border-radius:8px;padding:16px;display:grid;gap:14px;min-width:0}
+.panel h2{font-family:var(--f-display);font-size:1rem;margin:0;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+label{display:grid;gap:4px;font-size:.9rem}
+.row{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.row output{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.85rem}
+input[type=range]{width:100%;accent-color:var(--air)}
+select,input[type=number]{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);width:100%}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.note{font-size:.8rem;color:var(--muted);margin:0}
+button{font:inherit;font-weight:700;border:1px solid var(--ink);background:var(--ink);color:var(--sheet);border-radius:6px;padding:8px 12px;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--air);outline-offset:2px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.plot{background:var(--sheet);border:1px solid var(--line);border-radius:8px;padding:12px;min-width:0;display:grid;gap:10px}
+canvas{width:100%;height:auto;aspect-ratio:16/9;display:block;max-width:100%}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.88rem}
+.legend span::before{content:"";display:inline-block;width:22px;height:3px;vertical-align:middle;margin-right:6px;background:currentColor}
+.legend .v{color:var(--vac)} .legend .a{color:var(--air)}
+.legend .v::before{background:repeating-linear-gradient(90deg,var(--vac) 0 6px,transparent 6px 10px)}
+.results{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.9rem}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{font-family:var(--f-display);font-weight:600;color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em}
+td.num{font-family:var(--f-mono)}
+.check{display:flex;gap:10px;align-items:flex-start;border-left:4px solid var(--ok);padding:8px 12px;background:var(--paper);border-radius:0 6px 6px 0;font-size:.88rem}
+.check.bad{border-color:var(--warn)}
+.check b{font-family:var(--f-mono)}
+footer{color:var(--muted);font-size:.8rem;max-width:80ch}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
+</style>
+<style>body{margin:0}</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Tiro parabólico con y sin aire</h1>
+  <p>Compara la trayectoria ideal (vacío) con la que resulta de incluir arrastre cuadrático. El modelo se integra numéricamente con Runge–Kutta de orden 4 y se autoverifica contra la solución analítica del caso sin aire.</p>
+  <div class="eq">m·dv/dt = −m·g·ŷ − ½·ρ·C<sub>d</sub>·A·|v|·v</div>
+</header>
+
+<div class="main">
+  <section class="panel" aria-label="Parámetros">
+    <h2>Proyectil</h2>
+    <label for="preset">Objeto
+      <select id="preset">
+        <option value="tenis">Pelota de tenis</option>
+        <option value="futbol">Pelota de fútbol</option>
+        <option value="pingpong">Pelota de ping-pong</option>
+        <option value="acero">Esfera de acero (d = 3 cm)</option>
+        <option value="custom">Personalizado</option>
+      </select>
+    </label>
+    <div class="two">
+      <label for="m">Masa (kg)<input id="m" type="number" step="0.0001" min="0.0001"></label>
+      <label for="d">Diámetro (m)<input id="d" type="number" step="0.001" min="0.001"></label>
+    </div>
+    <label for="cd">Coef. de arrastre C<sub>d</sub><input id="cd" type="number" step="0.01" min="0"></label>
+    <p class="note">C<sub>d</sub> de referencia para esferas lisas a Re alto ≈ 0,47; las pelotas reales varían con la rugosidad y la velocidad. Valores aproximados.</p>
+
+    <h2>Lanzamiento</h2>
+    <label for="v0"><span class="row">Rapidez inicial v₀ <output id="v0o"></output></span><input id="v0" type="range" min="1" max="60" step="0.5" value="25"></label>
+    <label for="th"><span class="row">Ángulo θ <output id="tho"></output></span><input id="th" type="range" min="1" max="89" step="1" value="45"></label>
+    <label for="h0"><span class="row">Altura inicial h₀ <output id="h0o"></output></span><input id="h0" type="range" min="0" max="30" step="0.5" value="0"></label>
+
+    <h2>Lugar</h2>
+    <label for="site">Atmósfera y gravedad
+      <select id="site">
+        <option value="lapaz">La Paz, ~3640 m (estimado)</option>
+        <option value="mar">Nivel del mar (atm. estándar)</option>
+        <option value="vacio">Sin atmósfera (solo vacío)</option>
+      </select>
+    </label>
+    <div class="two">
+      <label for="rho">ρ (kg/m³)<input id="rho" type="number" step="0.01" min="0"></label>
+      <label for="g">g (m/s²)<input id="g" type="number" step="0.001" min="0.1"></label>
+    </div>
+    <p class="note">La Paz: ρ ≈ 0,85 kg/m³ según la atmósfera estándar ISA a 3640 m; g ≈ 9,773 m/s² con la fórmula de gravedad normal (lat. 16,5° S) y corrección de aire libre. La densidad real cambia con la temperatura del día.</p>
+    <div class="btns">
+      <button id="play" type="button">Lanzar</button>
+      <button id="copy" class="ghost" type="button">Copiar datos CSV</button>
+    </div>
+    <p class="note" id="copymsg" aria-live="polite"></p>
+  </section>
+
+  <section class="plot" aria-label="Trayectorias y resultados">
+    <div class="legend"><span class="v">Vacío (analítico)</span><span class="a">Con arrastre (RK4)</span></div>
+    <canvas id="cv" width="1280" height="720" role="img" aria-label="Gráfica de trayectorias"></canvas>
+    <div class="results">
+      <table>
+        <thead><tr><th>Magnitud</th><th>Vacío</th><th>Con aire</th><th>Diferencia</th></tr></thead>
+        <tbody id="tb"></tbody>
+      </table>
+    </div>
+    <div class="check" id="check"></div>
+  </section>
+</div>
+
+<footer>Recurso didáctico para el Curso de Actualización Pedagógica en Tiempos de la IA (FCPN). Código abierto: un único archivo HTML, sin dependencias, desplegable gratis en GitHub Pages o Cloudflare. Modelo: arrastre cuadrático con C<sub>d</sub> constante, sin sustentación (efecto Magnus) ni viento.</footer>
+</div>
+
+<script>
+(function(){
+const PRESETS={
+  tenis:{m:0.057,d:0.067,cd:0.55},
+  futbol:{m:0.43,d:0.22,cd:0.25},
+  pingpong:{m:0.0027,d:0.040,cd:0.50},
+  acero:{m:0.110,d:0.030,cd:0.47}
+};
+const SITES={lapaz:{rho:0.85,g:9.773},mar:{rho:1.225,g:9.807},vacio:{rho:0,g:9.807}};
+const $=id=>document.getElementById(id);
+const fmt=(x,n=2)=>Number.isFinite(x)?x.toLocaleString('es-BO',{minimumFractionDigits:n,maximumFractionDigits:n}):'—';
+
+function params(){
+  return {m:+$('m').value,d:+$('d').value,cd:+$('cd').value,v0:+$('v0').value,
+    th:+$('th').value*Math.PI/180,h0:+$('h0').value,rho:+$('rho').value,g:+$('g').value};
+}
+
+// Solución analítica en el vacío
+function analytic(p){
+  const vx=p.v0*Math.cos(p.th), vy=p.v0*Math.sin(p.th);
+  const T=(vy+Math.sqrt(vy*vy+2*p.g*p.h0))/p.g;
+  return {R:vx*T,H:p.h0+vy*vy/(2*p.g),T,vImp:Math.hypot(vx,vy-p.g*T)};
+}
+
+// Integración RK4 con arrastre cuadrático; k = ρ·Cd·A/(2m)
+function rk4(p,withDrag){
+  const A=Math.PI*(p.d/2)**2;
+  const k=withDrag?0.5*p.rho*p.cd*A/p.m:0;
+  const f=(s)=>{const v=Math.hypot(s[2],s[3]);return [s[2],s[3],-k*v*s[2],-p.g-k*v*s[3]];};
+  let s=[0,p.h0,p.v0*Math.cos(p.th),p.v0*Math.sin(p.th)],t=0,dt=1e-3,H=s[1];
+  const pts=[[0,s[1],0]];
+  for(let i=0;i<2e6;i++){
+    const k1=f(s),
+      k2=f(s.map((x,j)=>x+dt/2*k1[j])),
+      k3=f(s.map((x,j)=>x+dt/2*k2[j])),
+      k4=f(s.map((x,j)=>x+dt*k3[j]));
+    const n=s.map((x,j)=>x+dt/6*(k1[j]+2*k2[j]+2*k3[j]+k4[j]));
+    if(n[1]<0&&t>0){ // interpolación lineal al cruzar y = 0
+      const a=s[1]/(s[1]-n[1]);
+      const x=s[0]+a*(n[0]-s[0]),vx=s[2]+a*(n[2]-s[2]),vy=s[3]+a*(n[3]-s[3]);
+      t+=a*dt; pts.push([x,0,t]);
+      return {R:x,H,T:t,vImp:Math.hypot(vx,vy),pts,k};
+    }
+    s=n;t+=dt;if(s[1]>H)H=s[1];
+    if(i%10===0)pts.push([s[0],s[1],t]);
+  }
+  return {R:NaN,H,T:NaN,vImp:NaN,pts,k};
+}
+
+const cv=$('cv'),ctx=cv.getContext('2d');
+let state=null,anim=null;
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+
+function niceStep(span){const raw=span/8,p=10**Math.floor(Math.log10(raw)),r=raw/p;return (r<1.5?1:r<3.5?2:r<7.5?5:10)*p;}
+
+function draw(progress){
+  if(!state)return;
+  const {vac,air}=state, W=cv.width, Hc=cv.height;
+  const padL=78,padR=26,padT=26,padB=62;
+  const xmax=Math.max(vac.R,air.R||0)*1.06||1, ymax=Math.max(vac.H,air.H)*1.15||1;
+  const sx=(W-padL-padR)/xmax, sy=(Hc-padT-padB)/ymax;
+  const X=x=>padL+x*sx, Y=y=>Hc-padB-y*sy;
+  ctx.clearRect(0,0,W,Hc);
+  ctx.fillStyle=css('--sheet');ctx.fillRect(0,0,W,Hc);
+  // papel milimetrado
+  const stx=niceStep(xmax),sty=niceStep(ymax);
+  ctx.lineWidth=1;
+  for(let i=0;i*stx/5<=xmax;i++){ctx.strokeStyle=i%5?css('--grid'):css('--grid-strong');ctx.beginPath();ctx.moveTo(X(i*stx/5),Y(0));ctx.lineTo(X(i*stx/5),Y(ymax));ctx.stroke();}
+  for(let i=0;i*sty/5<=ymax;i++){ctx.strokeStyle=i%5?css('--grid'):css('--grid-strong');ctx.beginPath();ctx.moveTo(X(0),Y(i*sty/5));ctx.lineTo(X(xmax),Y(i*sty/5));ctx.stroke();}
+  // ejes y etiquetas
+  ctx.fillStyle=css('--muted');ctx.font='22px "JetBrains Mono", monospace';
+  ctx.textAlign='center';ctx.textBaseline='top';
+  for(let x=0;x<=xmax+1e-9;x+=stx)ctx.fillText(+x.toFixed(6)+'',X(x),Y(0)+8);
+  ctx.textAlign='right';ctx.textBaseline='middle';
+  for(let y=0;y<=ymax+1e-9;y+=sty)ctx.fillText(+y.toFixed(6)+'',X(0)-10,Y(y));
+  ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText('x (m)',X(xmax/2),Hc-4);
+  ctx.save();ctx.translate(20,Y(ymax/2));ctx.rotate(-Math.PI/2);ctx.textBaseline='top';ctx.fillText('y (m)',0,0);ctx.restore();
+  ctx.strokeStyle=css('--ink');ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(X(0),Y(ymax));ctx.lineTo(X(0),Y(0));ctx.lineTo(X(xmax),Y(0));ctx.stroke();
+  // vacío (analítico)
+  const p=state.p,vx=p.v0*Math.cos(p.th),vy=p.v0*Math.sin(p.th);
+  ctx.strokeStyle=css('--vac');ctx.lineWidth=3;ctx.setLineDash([12,8]);ctx.beginPath();
+  for(let i=0;i<=200;i++){const t=vac.T*i/200;const x=vx*t,y=p.h0+vy*t-p.g*t*t/2;i?ctx.lineTo(X(x),Y(y)):ctx.moveTo(X(x),Y(y));}
+  ctx.stroke();ctx.setLineDash([]);
+  // con aire
+  if(state.hasAir){
+    const pts=air.pts,n=Math.max(2,Math.floor(pts.length*progress));
+    ctx.strokeStyle=css('--air');ctx.lineWidth=4;ctx.beginPath();
+    for(let i=0;i<n;i++){i?ctx.lineTo(X(pts[i][0]),Y(pts[i][1])):ctx.moveTo(X(pts[i][0]),Y(pts[i][1]));}
+    ctx.stroke();
+    const q=pts[n-1];ctx.fillStyle=css('--air');ctx.beginPath();ctx.arc(X(q[0]),Y(q[1]),9,0,2*Math.PI);ctx.fill();
+  }
+}
+
+function table(){
+  const {vac,air,hasAir}=state;
+  const rows=[['Alcance horizontal (m)','R'],['Altura máxima (m)','H'],['Tiempo de vuelo (s)','T'],['Rapidez de impacto (m/s)','vImp']];
+  $('tb').innerHTML=rows.map(([lab,k])=>{
+    const a=vac[k],b=hasAir?air[k]:NaN,dif=hasAir?(b-a)/a*100:NaN;
+    return `<tr><td>${lab}</td><td class="num">${fmt(a)}</td><td class="num">${hasAir?fmt(b):'—'}</td><td class="num">${hasAir?fmt(dif,1)+' %':'—'}</td></tr>`;
+  }).join('')+(hasAir?`<tr><td>Rapidez terminal √(g/k) (m/s)</td><td class="num">—</td><td class="num">${fmt(Math.sqrt(state.p.g/air.k))}</td><td></td></tr>`:'');
+  const err=Math.abs(state.num0.R-vac.R)/vac.R;
+  const ok=err<1e-4;
+  $('check').className='check'+(ok?'':' bad');
+  $('check').innerHTML=`<div><strong>${ok?'Verificación superada':'Revisar el integrador'}.</strong> Con ρ = 0, el alcance calculado con RK4 (<b>${fmt(state.num0.R,4)} m</b>) difiere del analítico v₀cosθ·T (<b>${fmt(vac.R,4)} m</b>) en <b>${err.toExponential(1)}</b> relativo. Este control es el que conviene exigir a cualquier código generado con IA antes de llevarlo al aula.</div>`;
+}
+
+function compute(){
+  const p=params();
+  ['v0o','tho','h0o'].forEach(()=>{});
+  $('v0o').textContent=fmt(p.v0,1)+' m/s';$('tho').textContent=$('th').value+'°';$('h0o').textContent=fmt(p.h0,1)+' m';
+  if(!(p.m>0&&p.d>0&&p.g>0)){return;}
+  const hasAir=p.rho>0&&p.cd>0;
+  state={p,vac:analytic(p),air:hasAir?rk4(p,true):{R:NaN,H:NaN,pts:[]},num0:rk4(p,false),hasAir};
+  table();draw(1);
+}
+
+function play(){
+  if(!state||!state.hasAir)return;
+  cancelAnimationFrame(anim);
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){draw(1);return;}
+  const dur=Math.min(4000,Math.max(1200,state.air.T*600)),t0=performance.now();
+  const step=now=>{const k=Math.min(1,(now-t0)/dur);draw(k);if(k<1)anim=requestAnimationFrame(step);};
+  anim=requestAnimationFrame(step);
+}
+
+function applyPreset(){const v=PRESETS[$('preset').value];if(!v)return;$('m').value=v.m;$('d').value=v.d;$('cd').value=v.cd;}
+function applySite(){const s=SITES[$('site').value];$('rho').value=s.rho;$('g').value=s.g;}
+
+$('preset').addEventListener('change',()=>{applyPreset();compute();play();});
+$('site').addEventListener('change',()=>{applySite();compute();play();});
+['m','d','cd','rho','g'].forEach(id=>$(id).addEventListener('input',()=>{if(['m','d','cd'].includes(id))$('preset').value='custom';compute();}));
+['v0','th','h0'].forEach(id=>$(id).addEventListener('input',compute));
+$('play').addEventListener('click',play);
+$('copy').addEventListener('click',()=>{
+  if(!state)return;
+  const lines=['t_s,x_m,y_m'].concat(state.air.pts.map(q=>q[2].toFixed(3)+','+q[0].toFixed(4)+','+q[1].toFixed(4)));
+  const txt=lines.join('\n');
+  const done=m=>{$('copymsg').textContent=m;};
+  try{navigator.clipboard.writeText(txt).then(()=>done(`Copiadas ${lines.length-1} filas (con aire). Pégalas en Sheets o Excel.`),()=>done('El navegador no permitió copiar.'));}catch(e){done('El navegador no permitió copiar.');}
+});
+window.addEventListener('resize',()=>draw(1));
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>draw(1));}catch(e){}
+new MutationObserver(()=>draw(1)).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+applyPreset();applySite();compute();
+})();
+</script>
+</body>
+</html>

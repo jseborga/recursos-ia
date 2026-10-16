@@ -1,0 +1,9 @@
+{
+  // Configuración para publicar el sitio estático en Cloudflare Workers (static assets).
+  // Solo hace falta si se usa la ruta "Workers"; la ruta "Pages" y GitHub Pages lo ignoran.
+  "name": "recursos-ia",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./docs"
+  }
+}

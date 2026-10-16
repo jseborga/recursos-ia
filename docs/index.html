@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recursos de Física con IA</title>
+<style>
+:root{--bg:#f2f4f6;--card:#fcfdfd;--ink:#1b2530;--muted:#5b6876;--line:#d3dae1;--accent:#2d55a0}
+@media (prefers-color-scheme: dark){:root{--bg:#10161c;--card:#151d25;--ink:#e2e9ef;--muted:#9aa8b5;--line:#283642;--accent:#86aef0;color-scheme:dark}}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,"Segoe UI",sans-serif;padding:32px max(16px,4vw)}
+main{max-width:760px;margin:0 auto;display:grid;gap:16px}
+h1{margin:0;font-size:clamp(1.6rem,4vw,2.2rem);line-height:1.15}
+p{margin:0;color:var(--muted)}
+a.card{display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;color:inherit;text-decoration:none}
+a.card:hover,a.card:focus-visible{border-color:var(--accent)}
+a.card strong{color:var(--accent);font-size:1.1rem}
+</style>
+</head>
+<body>
+<main>
+  <h1>Recursos de Física con IA</h1>
+  <p>Material de demostración del Módulo 8, «El auxiliar aumentado». Cada recurso es un único archivo HTML sin dependencias de servidor.</p>
+  <a class="card" href="tiro-parabolico/"><strong>Tiro parabólico con y sin aire</strong><br>Simulación RK4 con arrastre cuadrático, parámetros de La Paz y autoverificación analítica.</a>
+  <a class="card" href="banco-problemas/"><strong>Práctica de Física Básica I</strong><br>Problemas con datos distintos por estudiante, calificación automática y clave docente.</a>
+  <h2 style="margin:12px 0 0;font-size:1.25rem">Cuadernos de Google Colab</h2>
+  <p>Se abren como copia editable; ejecútelos con <em>Entorno de ejecución → Ejecutar todo</em>.</p>
+  <a class="card" href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/01_verificacion_taller.ipynb"><strong>01 · Verificación del taller</strong><br>Las dos páginas web, recalculadas de forma independiente en Python.</a>
+  <a class="card" href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/02_fisica_clasica.ipynb"><strong>02 · Física clásica</strong><br>Péndulo de amplitud grande, caída con aire, resonancia, RC, choques y ajuste de g.</a>
+  <a class="card" href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/03_fisica_avanzada.ipynb"><strong>03 · Física avanzada</strong><br>Kepler, péndulo doble, ecuación del calor, oscilador cuántico e incertidumbre por Monte Carlo.</a>
+  <p>Código fuente: <a href="https://github.com/jseborga/recursos-ia">github.com/jseborga/recursos-ia</a></p>
+  <p>Licencia: CC BY 4.0. Revise siempre los valores numéricos antes de usarlos en evaluación.</p>
+</main>
+</body>
+</html>
