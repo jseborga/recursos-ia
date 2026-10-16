@@ -10,13 +10,16 @@ docs/                                ← sitio web: https://jseborga.github.io/r
 ├── orbitas/                         ← Kepler, RK4 frente a Verlet (control: energía por órbita)
 ├── calor/                           ← ecuación del calor y estabilidad r ≤ ½ (control: serie de Fourier)
 ├── resonancia/                      ← oscilador forzado (control: amplitud analítica)
+├── elementos-finitos/               ← FEM 1D, FIS-243/MAT-132 (control: orden de convergencia h²)
+├── herramientas/                    ← guía de herramientas de IA con fuentes y fechas
 ├── tiro-parabolico/                 ← arrastre del aire en La Paz (control: caso sin aire)
 ├── banco-problemas/                 ← práctica con datos por estudiante
 └── assets/                          ← estilo y utilidades de gráficas compartidas
 notebooks/                           ← cuadernos para Google Colab
 ├── 01_verificacion_taller.ipynb     ← verifica las dos páginas básicas
 ├── 02_fisica_clasica.ipynb          ← 6 ejemplos de Física Básica
-└── 03_fisica_avanzada.ipynb         ← 5 ejemplos de métodos numéricos
+├── 03_fisica_avanzada.ipynb         ← 5 ejemplos de métodos numéricos
+└── 04_metodos_numericos.ipynb       ← 6 ejemplos ligados al plan 2009 (12 controles)
 wrangler.jsonc                       ← solo para la ruta Cloudflare Workers
 ```
 
@@ -30,8 +33,11 @@ Sitio: **https://jseborga.github.io/recursos-ia/**. Cada simulación muestra en 
 | [Órbitas de Kepler](https://jseborga.github.io/recursos-ia/orbitas/) | RK4 deriva; Verlet queda acotado pero precesa | Error de energía por órbita |
 | [Ecuación del calor](https://jseborga.github.io/recursos-ia/calor/) | r = 0,50 exacto, r = 0,52 explota | Serie de Fourier exacta |
 | [Resonancia](https://jseborga.github.io/recursos-ia/resonancia/) | Transitorio, régimen estacionario y curva A(ω) | Amplitud analítica (diferencia < 0,01 %) |
+| [Elementos finitos 1D](https://jseborga.github.io/recursos-ia/elementos-finitos/) | Rectas por tramos frente a la solución exacta; carga puntual | Orden de convergencia medido ≈ 2 |
 | [Tiro parabólico](https://jseborga.github.io/recursos-ia/tiro-parabolico/) | Arrastre del aire con ρ de La Paz | Caso sin aire = fórmula analítica |
 | [Banco de problemas](https://jseborga.github.io/recursos-ia/banco-problemas/) | Datos distintos por estudiante | Respuestas recalculadas en Python |
+
+La guía [Herramientas de IA](https://jseborga.github.io/recursos-ia/herramientas/) resume para qué sirve cada herramienta (Perplexity, Gemini Notebook, ChatGPT/Codex, Claude/Claude Code, Z.ai, Colab, Copilot), con planes consultados el 16 oct 2026 y sus fuentes.
 
 Los resultados numéricos de las simulaciones coinciden con los cuadernos de Python (por ejemplo, la separación del péndulo doble supera 0,1 rad a los 19,0 s en ambos).
 
@@ -44,6 +50,7 @@ Haga clic en el botón para abrir una copia editable. *Entorno de ejecución →
 | 01 · Verificación del taller | La simulación web y el banco de problemas, recalculados en Python | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/01_verificacion_taller.ipynb) |
 | 02 · Física clásica | Péndulo de amplitud grande, caída con aire, resonancia, circuito RC, choques, ajuste de *g* con incertidumbres | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/02_fisica_clasica.ipynb) |
 | 03 · Física avanzada | Kepler (Verlet frente a RK4), péndulo doble caótico, ecuación del calor y estabilidad, oscilador cuántico, incertidumbre por Monte Carlo | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/03_fisica_avanzada.ipynb) |
+| 04 · Métodos numéricos (plan 2009) | Elementos finitos 1D, Laplace 2D, fenómeno de Gibbs, onda y Courant, pozo finito, Ising frente a Onsager | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/04_metodos_numericos.ipynb) |
 
 Los botones abren los cuadernos directamente desde este repositorio público. Colab abre una copia: ejecutarla no modifica el repositorio. Para guardar cambios: *Archivo → Guardar una copia en Drive* o *Guardar una copia en GitHub*.
 

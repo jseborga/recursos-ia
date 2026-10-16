@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Herramientas de IA</title>
+<meta name="description" content="Qué herramienta de IA usar para cada tarea del auxiliar de docencia: buscar, resumir, programar, verificar y publicar. Datos de planes verificados el 16 de octubre de 2026.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/base.css">
+<style>
+  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:18px 0 8px}
+  @media (max-width:760px){.flow{grid-template-columns:1fr 1fr}}
+  .flow div{background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.88rem}
+  .flow b{display:block;font-family:var(--f-display);font-size:1.02rem;color:var(--b)}
+  .flow div.key{border-color:var(--ok)} .flow div.key b{color:var(--ok)}
+  .rulebox{border-left:4px solid var(--warn);background:var(--sheet);padding:12px 16px;border-radius:0 10px 10px 0;margin:14px 0}
+  .tools{display:grid;gap:16px;margin-top:14px}
+  .tool{background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;gap:10px}
+  .tool header{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;margin:0;padding:0;border:0}
+  .tool h2{font-family:var(--f-display);font-size:1.25rem;margin:0}
+  .role{font-family:var(--f-mono);font-size:.74rem;text-transform:uppercase;letter-spacing:.08em;border:1px solid currentColor;border-radius:999px;padding:2px 9px;color:var(--a)}
+  .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px 22px}
+  .cols h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 4px;font-family:var(--f-mono);font-weight:600}
+  .cols p,.cols ul{margin:0;font-size:.92rem} .cols ul{padding-left:18px}
+  .prompt{font-family:var(--f-mono);font-size:.82rem;background:var(--paper);border:1px dashed var(--line);border-radius:8px;padding:34px 12px 10px;white-space:pre-wrap;position:relative}
+  .prompt button{position:absolute;top:6px;right:6px;font-size:.72rem;padding:3px 8px}
+  .src{font-size:.8rem;color:var(--muted)} .src a{color:inherit}
+  .gap{color:var(--warn);font-weight:700}
+  table.map{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:10px;background:var(--sheet)}
+  table.map th,table.map td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  table.map th{font-family:var(--f-mono);font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .steps{counter-reset:s;display:grid;gap:8px;margin:10px 0 0;padding:0;list-style:none}
+  .steps li{counter-increment:s;background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:10px 12px 10px 44px;position:relative;font-size:.93rem}
+  .steps li::before{content:counter(s);position:absolute;left:14px;top:9px;font-family:var(--f-display);font-weight:800;color:var(--b);font-size:1.1rem}
+  h2.sec{font-family:var(--f-display);font-size:1.35rem;margin:28px 0 2px}
+  .wrap code{font-family:var(--f-mono);font-size:.86em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">← Todas las simulaciones</a>
+  <header>
+    <h1>Herramientas de IA para el auxiliar de docencia</h1>
+    <p>No hace falta usarlas todas. Cada una sirve para un paso distinto del trabajo; lo que no se delega nunca es la verificación. Los datos de planes y precios cambian cada pocas semanas: aquí figuran con su fuente y la fecha en que se consultaron (16 de octubre de 2026).</p>
+  </header>
+
+  <div class="flow" aria-label="Flujo de trabajo">
+    <div><b>1 · Buscar</b>Perplexity: respuestas con enlaces que se pueden revisar.</div>
+    <div><b>2 · Resumir</b>Gemini Notebook: preguntas sobre tus propios apuntes, PDF y repositorios.</div>
+    <div><b>3 · Construir</b>ChatGPT, Claude, Z.ai: redactar, programar simulaciones y cuadernos.</div>
+    <div class="key"><b>4 · Verificar</b>Colab o el navegador: caso exacto, ley de conservación, segundo método.</div>
+    <div><b>5 · Publicar</b>GitHub Pages: enlace gratuito para el curso.</div>
+  </div>
+
+  <div class="rulebox"><strong>Regla del aula.</strong> No subir a ninguna herramienta nombres, carnés, notas ni trabajos identificables de estudiantes. Para el banco de problemas basta el código de estudiante, y el cálculo ocurre en el navegador, sin enviar datos a nadie.</div>
+
+  <h2 class="sec">Las herramientas, una por una</h2>
+  <div class="tools">
+
+    <article class="tool">
+      <header><h2>Perplexity</h2><span class="role">buscar</span></header>
+      <div class="cols">
+        <div><h3>Para qué en docencia</h3><p>Encontrar datos actualizados (constantes, normas, artículos de divulgación) con la fuente al lado. Cada cifra se abre y se comprueba en el enlace original antes de usarla.</p></div>
+        <div><h3>Acceso</h3><ul><li>Gratis: búsquedas básicas ilimitadas y unas 5 búsquedas «Pro» al día.</li><li>Pro: 20 USD/mes. Education Pro: 10 USD/mes para estudiantes y docentes universitarios verificados por SheerID.</li></ul></div>
+        <div><h3>Cuidado</h3><p>Una cita no garantiza que la fuente diga lo que el resumen afirma. Abrir siempre el enlace.</p></div>
+      </div>
+      <div class="prompt"><button type="button" class="ghost">Copiar</button>Valor recomendado por CODATA 2022 de la constante de Planck reducida, con incertidumbre. Dame solo el enlace a la tabla oficial del NIST y el número tal como aparece allí.</div>
+      <p class="src">Fuente: <a href="https://www.finout.io/blog/perplexity-pricing-in-2026">Finout, «Perplexity Pricing in 2026»</a> (27 abr 2026; fuente secundaria, no la página oficial de precios).</p>
+    </article>
+
+    <article class="tool">
+      <header><h2>Gemini Notebook <small style="font-weight:400;color:var(--muted)">(antes NotebookLM)</small></h2><span class="role">resumir</span></header>
+      <div class="cols">
+        <div><h3>Para qué en docencia</h3><p>Cargar el programa de la materia, las guías de laboratorio y los apuntes, y pedir resúmenes, preguntas de repaso o un glosario que cita el párrafo de origen.</p></div>
+        <div><h3>Acceso y límites (plan gratuito)</h3><ul><li>Hasta 50 fuentes por cuaderno; cada fuente hasta 500 000 palabras o 200 MB.</li><li>Acepta PDF, docx, txt, Markdown, CSV, pptx, Documentos/Presentaciones/Hojas de Google, páginas web, YouTube con subtítulos, imágenes, audio y ePub.</li></ul></div>
+        <div><h3>Cuidado</h3><p><span class="gap">No importa repositorios de GitHub directamente.</span> Hay que convertir el repositorio en un archivo de texto primero (ver el ejercicio de abajo).</p></div>
+      </div>
+      <div class="prompt"><button type="button" class="ghost">Copiar</button>Usando solo las fuentes cargadas, haz una tabla con cada simulación del repositorio, el método numérico que usa y el control con que se verifica. Si una simulación no tiene control, dilo.</div>
+      <p class="src">Fuente: <a href="https://support.google.com/gemininotebook/answer/16215270?hl=en">Ayuda de Google, «Add or discover new sources for your notebook»</a> (consultada el 16 oct 2026).</p>
+    </article>
+
+    <article class="tool">
+      <header><h2>ChatGPT y Codex</h2><span class="role">construir</span></header>
+      <div class="cols">
+        <div><h3>Para qué en docencia</h3><p>ChatGPT para redactar guías y rúbricas. Codex es el agente de programación de OpenAI: escribe y modifica código en un repositorio, por ejemplo una simulación nueva para esta página.</p></div>
+        <div><h3>Acceso</h3><ul><li>Codex está incluido en todos los planes de ChatGPT, también Free y Go; los límites de uso dependen del plan.</li><li>Se usa desde la app de escritorio, la terminal (Codex CLI), una extensión para el editor o la web.</li></ul></div>
+        <div><h3>Cuidado</h3><p><span class="gap">La ayuda oficial no publica los límites del plan gratuito</span>; remite a la página de precios. Las tareas «en la nube» corren en servidores de OpenAI: no conectar repositorios con datos de estudiantes.</p></div>
+      </div>
+      <div class="prompt"><button type="button" class="ghost">Copiar</button>En este repositorio, agrega docs/pozo-finito/index.html con el mismo estilo que docs/calor/. Debe calcular los estados ligados de un pozo cuadrado finito por bisección y comparar con diferencias finitas. Muestra en pantalla un control que falle si la diferencia supera 0,1 %.</div>
+      <p class="src">Fuente: <a href="https://help.openai.com/en/articles/11369540">Ayuda de OpenAI, «Using Codex with your ChatGPT plan»</a> (consultada el 16 oct 2026).</p>
+    </article>
+
+    <article class="tool">
+      <header><h2>Claude y Claude Code</h2><span class="role">construir</span></header>
+      <div class="cols">
+        <div><h3>Para qué en docencia</h3><p>Claude para redactar, revisar y crear páginas interactivas. Claude Code es el agente de programación que trabaja sobre los archivos de un proyecto. Este repositorio y sus cuadernos se construyeron con Claude trabajando como agente: escribir, ejecutar, comprobar los controles y corregir.</p></div>
+        <div><h3>Acceso</h3><ul><li>Claude Code está incluido en los planes Pro y Max (y en Team/Enterprise, con condiciones aparte).</li><li>Funciona en la terminal y en editores (VS Code, Cursor, JetBrains).</li></ul></div>
+        <div><h3>Cuidado</h3><p>El artículo de soporte no menciona el plan gratuito para Claude Code: cuéntese como herramienta de pago.</p></div>
+      </div>
+      <div class="prompt"><button type="button" class="ghost">Copiar</button>Lee notebooks/04_metodos_numericos.ipynb. Agrega un ejemplo de método de Newton–Raphson en dos variables con su propio control (residuo menor que 10⁻¹⁰), ejecuta el cuaderno completo y dime qué controles pasaron.</div>
+      <p class="src">Fuente: <a href="https://support.claude.com/en/articles/11145838-use-claude-code-with-your-pro-or-max-plan">Soporte de Claude, «Use Claude Code with your Pro or Max plan»</a> (consultada el 16 oct 2026).</p>
+    </article>
+
+    <article class="tool">
+      <header><h2>Z.ai (modelos GLM)</h2><span class="role">construir</span></header>
+      <div class="cols">
+        <div><h3>Para qué en docencia</h3><p>Una alternativa gratuita en el navegador (chat.z.ai) para redactar o generar código cuando se agotan los límites de las demás. Los pesos de los modelos GLM son abiertos (licencia MIT).</p></div>
+        <div><h3>Acceso</h3><ul><li>Chat web gratuito, sin clave de API; según una fuente de agosto de 2026, sirve GLM-5.2.</li><li>Plan de programación de pago: desde 18 USD/mes (Lite), según una reseña de junio de 2026.</li></ul></div>
+        <div><h3>Cuidado</h3><p>Z.ai es la empresa antes llamada Zhipu AI. <span class="gap">No revisé su política de privacidad ni dónde se almacenan los datos</span>: úsese solo con material público.</p></div>
+      </div>
+      <div class="prompt"><button type="button" class="ghost">Copiar</button>Escribe en Python una función que integre un péndulo simple de amplitud grande con RK4 y compare el período con la serie de la integral elíptica. Incluye un assert que falle si la diferencia supera 10⁻⁶.</div>
+      <p class="src">Fuentes: <a href="https://blogs.novita.ai/es/glm-free-api/">Novita, «¿Hay una API de GLM gratuita?»</a> (verificado por el autor el 25 ago 2026); <a href="https://hyscaler.com/insights/glm-coding-plan-review">HyScaler, «GLM's Coding Plan»</a> (18 jun 2026). Ambas son fuentes secundarias.</p>
+    </article>
+
+    <article class="tool">
+      <header><h2>IA dentro de Google Colab</h2><span class="role">verificar</span></header>
+      <div class="cols">
+        <div><h3>Para qué en docencia</h3><p>Colab es donde se ejecutan y verifican los cuadernos. La librería <code>google.colab.ai</code> permite llamar a un modelo desde una celda (<code>ai.generate_text(...)</code>).</p></div>
+        <div><h3>Acceso</h3><ul><li>El anuncio original (julio de 2025) la ofrecía a suscriptores Pro y Pro+, con límites de vista previa sujetos a cambio.</li><li>En nuestra prueba del cuaderno 01 (octubre de 2026), la celda respondió con error 429 por cuota.</li></ul></div>
+        <div><h3>Cuidado</h3><p>No depender de esta celda en una demostración en vivo. Los cuadernos del taller están hechos para funcionar sin ella.</p></div>
+      </div>
+      <p class="src">Fuente: <a href="https://medium.com/google-colab/introducing-google-colab-ai-the-easiest-way-to-use-generative-ai-in-colab-no-setup-required-eee01230e0cf">Blog de Google Colab, «Introducing Google Colab AI»</a> (14 jul 2025), y prueba propia.</p>
+    </article>
+
+    <article class="tool">
+      <header><h2>GitHub Copilot</h2><span class="role">construir</span></header>
+      <div class="cols">
+        <div><h3>Para qué en docencia</h3><p>Autocompletado y chat dentro del editor mientras se escribe código de simulaciones.</p></div>
+        <div><h3>Acceso</h3><ul><li>La documentación de GitHub lista a los docentes verificados en GitHub Education como elegibles para Copilot Pro gratis; la elegibilidad se revisa cada mes.</li><li>El 20 de abril de 2026, GitHub suspendió las altas nuevas de Copilot Pro, Pro+ y del plan para estudiantes.</li></ul></div>
+        <div><h3>Cuidado</h3><p><span class="gap">No encontré confirmación de si la vía para docentes también está suspendida ni de si las altas se reabrieron.</span> Comprobarlo en la cuenta propia antes de recomendarlo.</p></div>
+      </div>
+      <p class="src">Fuentes: <a href="https://docs.github.com/en/copilot/how-tos/copilot-on-github/set-up-copilot/enable-copilot/set-up-for-teachers-and-os-maintainers">Documentación de GitHub, docentes y mantenedores</a> (consultada el 16 oct 2026); <a href="https://roboin.io/article/en/2026/04/21/github-copilot-sign-ups-suspended.md">Roboin, suspensión de altas</a> (21 abr 2026; secundaria).</p>
+    </article>
+  </div>
+
+  <h2 class="sec">Ejercicio de 10 minutos: preguntarle a un repositorio</h2>
+  <p>Gemini Notebook no lee GitHub, pero sí texto. GitIngest convierte un repositorio en un solo archivo de texto con el árbol de carpetas y el contenido de cada archivo. Es de código abierto (licencia MIT).</p>
+  <ol class="steps">
+    <li>En la dirección del repositorio, cambia <code>github.com</code> por <code>gitingest.com</code>. Para este taller: <a href="https://gitingest.com/jseborga/recursos-ia">gitingest.com/jseborga/recursos-ia</a>.</li>
+    <li>Descarga el resultado como archivo .txt. Si es muy grande, filtra por extensión (por ejemplo, solo <code>*.md</code> y <code>*.html</code>).</li>
+    <li>En Gemini Notebook, crea un cuaderno y sube ese .txt como fuente (límite: 500 000 palabras por fuente).</li>
+    <li>Pregunta: «¿Qué control de verificación usa cada simulación?». Comprueba dos respuestas abriendo los archivos citados.</li>
+  </ol>
+  <p class="src">Fuentes: <a href="https://github.com/coderamp-labs/gitingest">repositorio de GitIngest</a> (instrucción «replace hub with ingest»); <a href="https://jimmysong.io/en/ai/gitingest">reseña en jimmysong.io</a>. Alternativa sin herramientas externas: exportar los README y cuadernos a PDF y subirlos.</p>
+
+  <h2 class="sec">Qué usar según la tarea</h2>
+  <table class="map">
+    <thead><tr><th>Tarea del auxiliar</th><th>Herramienta</th><th>Control antes de usarlo</th></tr></thead>
+    <tbody>
+      <tr><td>Buscar un dato o una norma</td><td>Perplexity</td><td>Abrir el enlace y leer la cifra en la fuente original</td></tr>
+      <tr><td>Resumir el programa o los apuntes</td><td>Gemini Notebook</td><td>Revisar que cada afirmación cite un párrafo real</td></tr>
+      <tr><td>Crear una simulación o un cuaderno</td><td>ChatGPT/Codex, Claude/Claude Code, Z.ai</td><td>Caso con solución exacta, ley de conservación u orden de convergencia</td></tr>
+      <tr><td>Generar problemas con datos distintos</td><td>Banco de problemas de esta página</td><td>Recalcular la clave con otro lenguaje (cuaderno 01)</td></tr>
+      <tr><td>Publicar para el curso</td><td>GitHub Pages</td><td>Abrir el enlace en un celular y en modo incógnito</td></tr>
+    </tbody>
+  </table>
+
+  <footer>Material del Módulo 8, «El auxiliar aumentado». Planes y precios consultados el 16 de octubre de 2026; pueden haber cambiado. Donde dice «fuente secundaria», el dato no proviene de la página oficial del proveedor. Licencia CC BY 4.0.</footer>
+</div>
+<script>
+document.querySelectorAll(".prompt button").forEach(b => b.addEventListener("click", async () => {
+  const t = b.parentElement.textContent.replace(b.textContent, "").trim();
+  try { await navigator.clipboard.writeText(t); b.textContent = "Copiado"; } catch (e) { b.textContent = "Selecciona y copia"; }
+  setTimeout(() => (b.textContent = "Copiar"), 1600);
+}));
+</script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Elementos Finitos 1D</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/base.css">
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">← Todas las simulaciones</a>
+  <header>
+    <h1>Elementos finitos en una dimensión</h1>
+    <p>Una barra (o un potencial) con extremos fijos y una carga. El método de elementos finitos aproxima la solución con rectas por tramos y resuelve un sistema tridiagonal. Cambia el número de elementos y observa cómo baja el error; la pendiente de la recta de convergencia es el orden del método. Corresponde a FIS-243 Cálculo Numérico y Programación y MAT-132 Ecuaciones Diferenciales (plan 2009).</p>
+    <div class="eq">−u″(x) = f(x), u(0) = u(1) = 0 · forma débil: ∫u′v′ dx = ∫f v dx · K = (1/h)·tridiag(−1, 2, −1)</div>
+  </header>
+
+  <div class="main">
+    <section class="panel" aria-label="Parámetros">
+      <h2>Problema</h2>
+      <label for="load">Carga f(x)
+        <select id="load">
+          <option value="sin">f = π² sin(πx) → u = sin(πx)</option>
+          <option value="const">f = 1 (uniforme) → u = x(1 − x)/2</option>
+          <option value="point">carga puntual en x₀ = 0,3</option>
+        </select>
+      </label>
+      <h2>Malla</h2>
+      <label for="n"><span class="row">Número de elementos N <output id="no"></output></span><input id="n" type="range" min="2" max="64" step="1" value="5"></label>
+      <label style="display:flex;gap:8px;align-items:center"><input id="hats" type="checkbox" checked> Mostrar funciones base («sombreros»)</label>
+      <p class="note">Con la carga puntual, prueba N = 10: x₀ = 0,3 cae justo en un nodo y la solución FEM es exacta en todo el dominio. Con N = 7, x₀ cae dentro de un elemento y el orden de convergencia baja.</p>
+    </section>
+
+    <section class="stage" aria-label="Solución">
+      <div class="legend"><span class="a">Solución exacta</span><span class="b">Elementos finitos</span></div>
+      <canvas id="cv" role="img" aria-label="Solución exacta y aproximación por elementos finitos"></canvas>
+      <div class="stats">
+        <div class="stat"><b id="sh">—</b><span>tamaño de elemento h</span></div>
+        <div class="stat"><b id="se">—</b><span>error L² (entre nodos)</span></div>
+        <div class="stat"><b id="sn">—</b><span>error máximo en los nodos</span></div>
+        <div class="stat"><b id="so">—</b><span>orden de convergencia medido</span></div>
+      </div>
+      <canvas id="ch" role="img" aria-label="Convergencia del error en escala logarítmica"></canvas>
+      <div class="check" id="check"></div>
+      <div class="aula"><strong>Para el aula.</strong> Con f = π² sin(πx), los valores en los nodos son prácticamente exactos aunque el error entre nodos sea grande. ¿Por qué? (En 1D, la función de Green del problema es lineal a trozos con quiebre en el nodo: pertenece al espacio de elementos finitos.) Un control que mida solo en los nodos daría una convergencia engañosa.</div>
+    </section>
+  </div>
+  <footer>Material del Módulo 8, «El auxiliar aumentado». El cuaderno 04 de Colab contiene el mismo método en Python, junto con Laplace 2D, Gibbs, la ecuación de onda, el pozo finito e Ising. Licencia CC BY 4.0.</footer>
+</div>
+
+<script src="../assets/plot.js"></script>
+<script>
+(function () {
+  const $ = id => document.getElementById(id), X0 = 0.3;
+  const PROBS = {
+    sin:   { f: x => Math.PI * Math.PI * Math.sin(Math.PI * x), u: x => Math.sin(Math.PI * x) },
+    const: { f: x => 1, u: x => x * (1 - x) / 2 },
+    point: { f: null, u: x => x < X0 ? (1 - X0) * x : X0 * (1 - x) }
+  };
+  const GP = [-Math.sqrt(3 / 5), 0, Math.sqrt(3 / 5)], GW = [5 / 9, 8 / 9, 5 / 9];
+
+  function solve(N, kind) {
+    const h = 1 / N, x = Array.from({ length: N + 1 }, (_, i) => i * h), b = new Array(N + 1).fill(0), P = PROBS[kind];
+    if (kind === "point") {                     // δ(x − x0): reparte la carga con los valores de los sombreros
+      const e = Math.min(N - 1, Math.floor(X0 / h + 1e-12)), xa = x[e], xb = x[e + 1];
+      b[e] += (xb - X0) / h; b[e + 1] += (X0 - xa) / h;
+    } else {
+      for (let e = 0; e < N; e++) {
+        const xa = x[e], xb = x[e + 1];
+        GP.forEach((g, k) => { const xs = (xa + xb) / 2 + (xb - xa) / 2 * g, w = GW[k] * (xb - xa) / 2, fv = P.f(xs);
+          b[e] += w * fv * (xb - xs) / h; b[e + 1] += w * fv * (xs - xa) / h; });
+      }
+    }
+    // Thomas para K = (1/h) tridiag(−1, 2, −1) en los nodos interiores
+    const n = N - 1, c = new Array(n), d = new Array(n), u = new Array(N + 1).fill(0);
+    for (let i = 0; i < n; i++) {
+      const a = -1 / h, bb = 2 / h, cc = -1 / h, rhs = b[i + 1];
+      if (i === 0) { c[i] = cc / bb; d[i] = rhs / bb; }
+      else { const m = bb - a * c[i - 1]; c[i] = cc / m; d[i] = (rhs - a * d[i - 1]) / m; }
+    }
+    for (let i = n - 1; i >= 0; i--) u[i + 1] = d[i] - (i < n - 1 ? c[i] * u[i + 2] : 0);
+    return { x, u, h };
+  }
+  function errors(N, kind) {
+    const { x, u, h } = solve(N, kind), P = PROBS[kind], M = 4000;
+    let s = 0, prev = null;
+    for (let k = 0; k <= M; k++) {
+      const xx = k / M, e = Math.min(N - 1, Math.floor(xx / h)), t = (xx - x[e]) / h, uh = u[e] * (1 - t) + u[e + 1] * t;
+      const v = (uh - P.u(xx)) ** 2; if (prev !== null) s += (prev + v) / 2 / M; prev = v;
+    }
+    const nod = Math.max(...x.map((xi, i) => Math.abs(u[i] - P.u(xi))));
+    return { l2: Math.sqrt(s), nod };
+  }
+  window.__fem = { solve, errors };
+
+  function update() {
+    const N = +$("n").value, kind = $("load").value, P = PROBS[kind]; $("no").textContent = N;
+    const { x, u, h } = solve(N, kind), xf = Array.from({ length: 401 }, (_, i) => i / 400);
+    const series = [{ xs: xf, ys: xf.map(P.u), color: "--a", width: 5 }, { xs: x, ys: u, color: "--b", width: 2, points: N <= 40 }];
+    const ymax = Math.max(...xf.map(P.u)) * 1.15;
+    if ($("hats").checked && N <= 16) {
+      for (let i = 1; i < N; i++) series.push({ xs: [x[i - 1], x[i], x[i + 1]], ys: [0, u[i], 0], color: "--grid-strong", width: 1, dash: [3, 3] });
+    }
+    Lab.plot($("cv"), 16 / 8, series, { xLabel: "x", yLabel: "u(x)", xmin: 0, xmax: 1, ymin: 0, ymax, zeroBase: true });
+    const er = errors(N, kind);
+    $("sh").textContent = Lab.fmt(h, 4); $("se").textContent = Lab.sci(er.l2); $("sn").textContent = Lab.sci(er.nod);
+    // convergencia
+    const Ns = [4, 8, 16, 32, 64, 128, 256], E = Ns.map(k => errors(k, kind).l2), hs = Ns.map(k => 1 / k);
+    const lx = hs.map(Math.log), ly = E.map(Math.log), mx = lx.reduce((a, b) => a + b) / lx.length, my = ly.reduce((a, b) => a + b) / ly.length;
+    let num = 0, den = 0; lx.forEach((v, i) => { num += (v - mx) * (ly[i] - my); den += (v - mx) ** 2; }); const p = num / den;
+    $("so").textContent = "h^" + Lab.fmt(p, 2);
+    Lab.plot($("ch"), 3, [
+      { xs: Ns.map(Math.log10), ys: E, color: "--b", width: 2, points: true },
+      { xs: Ns.map(Math.log10), ys: Ns.map(k => 0.3 * E[0] * (Ns[0] / k) ** 2), color: "--muted", width: 1, dash: [4, 4] }
+    ], { logY: true, xLabel: "log₁₀ N  (punteada: pendiente −2, es decir error ∝ h²)", yLabel: "error L²", vline: Math.log10(N) });
+    let ok, html;
+    if (kind === "point") {
+      ok = true;
+      html = er.l2 < 1e-12 ? `<div><strong>Exacta.</strong> x₀ = 0,3 cae en un nodo (N = ${N}): la solución exacta es lineal a trozos con quiebre en ese nodo, así que FEM la reproduce sin error.</div>`
+        : `<div><strong>Carga puntual.</strong> Orden medido h^${Lab.fmt(p, 2)}, menor que 2: la solución tiene un quiebre en x₀. Si el quiebre cae dentro de un elemento, el error de interpolación allí es O(h) en un tramo de largo h, y en norma L² eso da h^1,5. Cuando x₀ cae en un nodo (N múltiplo de 10) el error se anula.</div>`;
+    } else {
+      ok = Math.abs(p - 2) < 0.1;
+      html = `<div><strong>${ok ? "Control superado" : "Revisar"}.</strong> El error L² decrece como h^${Lab.fmt(p, 3)}: segundo orden, como predice la teoría para elementos lineales.</div>`;
+    }
+    $("check").className = "check" + (ok ? "" : " bad"); $("check").innerHTML = html;
+  }
+  ["n", "load", "hats"].forEach(id => $(id).addEventListener("input", update));
+  window.addEventListener("resize", update);
+  update();
+})();
+</script>
+</body>
+</html>

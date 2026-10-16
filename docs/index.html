@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Recursos de Física con IA</title>
-<meta name="description" content="Simulaciones de física hechas con IA y verificadas: tiro parabólico, péndulo doble, órbitas de Kepler, ecuación del calor, resonancia y cuadernos de Google Colab.">
+<meta name="description" content="Simulaciones de física hechas con IA y verificadas: tiro parabólico, péndulo doble, órbitas de Kepler, ecuación del calor, resonancia, elementos finitos, cuadernos de Google Colab y una guía de herramientas de IA.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="assets/base.css">
 <style>
@@ -60,6 +60,13 @@
     <a class="card" href="resonancia/"><canvas data-prev="resonancia"></canvas><div class="body"><h3>Resonancia</h3><p>Mueve la frecuencia, mira el transitorio y mide la curva de resonancia punto por punto.</p><span class="tag ok">✔ control: amplitud analítica</span></div></a>
   </div>
 
+  <h2 class="sec">Matemáticas y métodos numéricos <small>según el plan de estudios 2009 de la Carrera de Física</small></h2>
+  <div class="grid">
+    <a class="card" href="elementos-finitos/"><canvas data-prev="fem"></canvas><div class="body"><h3>Elementos finitos 1D</h3><p>Rectas por tramos que se acercan a la solución. El error baja como h² y en los nodos es casi exacto. FIS-243, MAT-132.</p><span class="tag ok">✔ control: orden de convergencia</span></div></a>
+    <a class="card" href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/04_metodos_numericos.ipynb"><canvas data-prev="metodos"></canvas><div class="body"><h3>Cuaderno 04 en Colab</h3><p>FEM, Laplace 2D, fenómeno de Gibbs, ecuación de onda, pozo finito e Ising. FIS-242/252/253, FIS-360/370/380.</p><span class="tag ok">✔ 12 controles automáticos</span></div></a>
+    <a class="card" href="herramientas/"><canvas data-prev="flujo"></canvas><div class="body"><h3>Herramientas de IA</h3><p>Perplexity, Gemini Notebook, ChatGPT y Codex, Claude y Claude Code, Z.ai, Colab y Copilot: para qué sirve cada una y cuánto cuesta.</p><span class="tag ok">✔ datos con fuente y fecha</span></div></a>
+  </div>
+
   <h2 class="sec">Para empezar <small>Física Básica I</small></h2>
   <div class="grid">
     <a class="card" href="tiro-parabolico/"><canvas data-prev="tiro"></canvas><div class="body"><h3>Tiro parabólico en La Paz</h3><p>Arrastre del aire con la densidad a 3640 m. Sin aire, el integrador reproduce la fórmula del libro.</p><span class="tag ok">✔ control: caso sin aire</span></div></a>
@@ -71,6 +78,7 @@
     <a href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/01_verificacion_taller.ipynb"><strong>01 · Verificación del taller</strong><span>Las dos páginas básicas, recalculadas en Python con otro método.</span><span class="go">Abrir en Colab →</span></a>
     <a href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/02_fisica_clasica.ipynb"><strong>02 · Física clásica</strong><span>Péndulo de amplitud grande, caída con aire, resonancia, RC, choques y ajuste de g.</span><span class="go">Abrir en Colab →</span></a>
     <a href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/03_fisica_avanzada.ipynb"><strong>03 · Física avanzada</strong><span>Kepler, péndulo doble, ecuación del calor, oscilador cuántico e incertidumbre por Monte Carlo.</span><span class="go">Abrir en Colab →</span></a>
+    <a href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/04_metodos_numericos.ipynb"><strong>04 · Métodos numéricos</strong><span>Elementos finitos, Laplace 2D, Gibbs, onda y condición de Courant, pozo finito, modelo de Ising.</span><span class="go">Abrir en Colab →</span></a>
   </div>
 
   <h2 class="sec">Cómo se hizo cada recurso</h2>
@@ -138,6 +146,22 @@
       ctx.strokeStyle = Lab.css("--b"); ctx.lineWidth = 3; ctx.beginPath(); let lx = 0, ly = 0;
       for (let i = 0; i <= 60 * T; i++) { const s = i / 60, px = 14 + s * .62 * (w - 28), py = h - 14 - 3.3 * s * (1 - s ** 1.6) * (h - 30) * .9; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); lx = px; ly = py; } ctx.stroke();
       ctx.fillStyle = Lab.css("--b"); ctx.beginPath(); ctx.arc(lx, ly, 5, 0, 7); ctx.fill(); },
+    fem(ctx, w, h, t) { const N = 2 + Math.floor(t * .7) % 9, X = x => 14 + x * (w - 28), Y = y => h - 16 - y * (h - 34);
+      ctx.strokeStyle = Lab.css("--a"); ctx.lineWidth = 5; ctx.beginPath();
+      for (let i = 0; i <= 80; i++) { const x = i / 80; i ? ctx.lineTo(X(x), Y(Math.sin(Math.PI * x))) : ctx.moveTo(X(x), Y(0)); } ctx.stroke();
+      ctx.strokeStyle = Lab.css("--b"); ctx.fillStyle = Lab.css("--b"); ctx.lineWidth = 2; ctx.beginPath();
+      for (let i = 0; i <= N; i++) { const x = i / N; i ? ctx.lineTo(X(x), Y(Math.sin(Math.PI * x))) : ctx.moveTo(X(x), Y(0)); } ctx.stroke();
+      for (let i = 0; i <= N; i++) { const x = i / N; ctx.beginPath(); ctx.arc(X(x), Y(Math.sin(Math.PI * x)), 4, 0, 7); ctx.fill(); }
+      ctx.fillStyle = Lab.css("--muted"); ctx.font = "12px 'JetBrains Mono', monospace"; ctx.fillText("N = " + N, 16, 20); },
+    metodos(ctx, w, h, t) { const n = 24, cw = (w - 28) / n, ch = (h - 24) / 10, ph = t * .5;
+      for (let j = 0; j < 10; j++) for (let i = 0; i < n; i++) { const s = Math.sin(i * .9 + j * 1.7 + Math.floor(ph * 3) * (i * j % 5)) > 0;
+        ctx.fillStyle = Lab.css(s ? "--a" : "--sheet"); ctx.globalAlpha = s ? .75 : 1; ctx.fillRect(14 + i * cw, 12 + j * ch, cw - 1, ch - 1); } ctx.globalAlpha = 1; },
+    flujo(ctx, w, h, t) { const lab = ["Buscar", "Resumir", "Construir", "Verificar", "Publicar"], k = Math.floor(t * .8) % 5;
+      ctx.font = "600 12px 'JetBrains Mono', monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      lab.forEach((s, i) => { const cx = 14 + (w - 28) * (i + .5) / 5, cy = h / 2 + (i % 2 ? 18 : -18);
+        ctx.fillStyle = Lab.css(i === 3 ? "--ok" : i === k ? "--b" : "--muted"); ctx.beginPath(); ctx.arc(cx, cy, i === k ? 9 : 6, 0, 7); ctx.fill();
+        ctx.fillText(s, cx, cy + (i % 2 ? 22 : -22)); });
+      ctx.textAlign = "left"; ctx.textBaseline = "alphabetic"; },
     banco(ctx, w, h, t) { ctx.font = "600 13px 'JetBrains Mono', monospace"; const rows = ["1234567  a = 4,57 m/s²  ✔", "2345678  a = 3,83 m/s²  ✔", "3456789  a = 3,24 m/s²  ✔", "4567890  a = 1,23 m/s²  ✔"];
       const k = Math.floor(t * .8) % 4; rows.forEach((r, i) => { ctx.fillStyle = Lab.css(i === k ? "--b" : "--muted"); ctx.fillText(r, 16, 34 + i * (h - 40) / 4); }); }
   };
