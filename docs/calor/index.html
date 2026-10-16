@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ecuación del Calor</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/base.css">
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">← Todas las simulaciones</a>
+  <header>
+    <h1>Ecuación del calor: la frontera r = ½</h1>
+    <p>Una barra con los extremos a 0 °C y un perfil inicial en forma de triángulo. El método explícito (FTCS) es correcto solo si r = αΔt/Δx² ≤ ½. Cambia r de 0,50 a 0,52, un paso de tiempo apenas 4 % mayor, y el resultado pasa de exacto a absurdo. La solución exacta en serie de Fourier sirve de control.</p>
+    <div class="eq">∂u/∂t = α ∂²u/∂x² · uᵢⁿ⁺¹ = uᵢⁿ + r (uᵢ₊₁ⁿ − 2uᵢⁿ + uᵢ₋₁ⁿ) · u(x,t) = Σ bₙ e^(−αn²π²t/L²) sin(nπx/L)</div>
+  </header>
+
+  <div class="main">
+    <section class="panel" aria-label="Parámetros">
+      <h2>Método numérico</h2>
+      <label for="r"><span class="row">Número de malla r <output id="ro"></output></span><input id="r" type="range" min="0.10" max="0.60" step="0.01" value="0.40"></label>
+      <div class="btns">
+        <button class="ghost" type="button" data-r="0.40">r = 0,40</button>
+        <button class="ghost" type="button" data-r="0.50">r = 0,50</button>
+        <button class="ghost" type="button" data-r="0.52">r = 0,52</button>
+      </div>
+      <label for="ic">Perfil inicial
+        <select id="ic"><option value="tri">Triángulo (pico de 0,5)</option><option value="sin">Un solo modo: sin(πx)</option></select>
+      </label>
+      <p class="note">51 puntos de malla, L = 1, α = 1, t final = 0,05. Con el perfil «un solo modo» y r = 0,52, la inestabilidad no llega a verse antes de t = 0,05: solo crece desde el redondeo de la computadora. Un único caso de prueba puede dar una falsa sensación de seguridad.</p>
+      <div class="btns">
+        <button id="play" type="button">Pausar</button>
+        <button id="reset" class="ghost" type="button">Reiniciar</button>
+      </div>
+    </section>
+
+    <section class="stage" aria-label="Simulación">
+      <div class="legend"><span class="a">Solución exacta (Fourier)</span><span class="b">FTCS</span></div>
+      <canvas id="cv" role="img" aria-label="Temperatura a lo largo de la barra: solución exacta y numérica"></canvas>
+      <div class="stats">
+        <div class="stat"><b id="st">0</b><span>tiempo t</span></div>
+        <div class="stat"><b id="sn">0</b><span>pasos de tiempo</span></div>
+        <div class="stat"><b id="se">—</b><span>error máximo frente a la exacta</span></div>
+        <div class="stat"><b id="sm">—</b><span>|u| máximo numérico</span></div>
+      </div>
+      <div class="check" id="check"></div>
+      <div class="aula"><strong>Para el aula.</strong> ¿Qué modo de Fourier crece primero cuando r > ½, y por qué la gráfica se vuelve un serrucho? (El modo más alto que cabe en la malla, de longitud de onda 2Δx, se amplifica por |1 − 4r| > 1 en cada paso.)</div>
+    </section>
+  </div>
+  <footer>Material del Módulo 8, «El auxiliar aumentado». La misma prueba, en Python, está en el cuaderno 03 de Colab. Licencia CC BY 4.0.</footer>
+</div>
+
+<script src="../assets/plot.js"></script>
+<script>
+(function () {
+  const L = 1, alpha = 1, Nx = 51, TF = 0.05;
+  const x = Array.from({ length: Nx }, (_, i) => i * L / (Nx - 1)), dx = x[1] - x[0];
+  const $ = id => document.getElementById(id);
+  function u0(kind) { return x.map(xi => kind === "sin" ? 0.5 * Math.sin(Math.PI * xi / L) : (xi < L / 2 ? xi : L - xi)); }
+  function exact(kind, t) {
+    if (kind === "sin") return x.map(xi => 0.5 * Math.exp(-alpha * Math.PI * Math.PI * t / (L * L)) * Math.sin(Math.PI * xi / L));
+    return x.map(xi => { let s = 0; for (let n = 1; n <= 399; n += 2) s += 4 * L / (n * n * Math.PI * Math.PI) * Math.sin(n * Math.PI / 2) * Math.exp(-alpha * n * n * Math.PI * Math.PI * t / (L * L)) * Math.sin(n * Math.PI * xi / L); return s; });
+  }
+  function step(u, r) { const v = u.slice(); for (let i = 1; i < Nx - 1; i++) v[i] = u[i] + r * (u[i + 1] - 2 * u[i] + u[i - 1]); return v; }
+  window.__heat = { u0, exact, step, x, dx };
+
+  let u, n, t, r, kind, dt, nTot, running = true;
+  function reset() {
+    r = +$("r").value; kind = $("ic").value; $("ro").textContent = Lab.fmt(r, 2);
+    dt = r * dx * dx / alpha; nTot = Math.round(TF / dt); u = u0(kind); n = 0; t = 0; render();
+  }
+  function render() {
+    const ex = exact(kind, t), err = Math.max(...u.map((v, i) => Math.abs(v - ex[i]))), um = Math.max(...u.map(Math.abs));
+    const lim = um > 0.6 ? Math.min(um * 1.1, 1e30) : 0.55;
+    Lab.plot($("cv"), 16 / 9, [
+      { xs: x, ys: ex, color: "--a", width: 5 },
+      { xs: x, ys: u, color: "--b", width: 2, points: Nx <= 60 }
+    ], { xLabel: "posición x", yLabel: "temperatura u", ymin: um > 0.6 ? -lim : 0, ymax: lim, xmin: 0, xmax: 1 });
+    $("st").textContent = Lab.fmt(t, 4); $("sn").textContent = n + " / " + nTot;
+    $("se").textContent = Lab.sci(err); $("sm").textContent = um > 1e6 ? Lab.sci(um) : Lab.fmt(um, 4);
+    const stable = r <= 0.5, ok = err < 2e-3;
+    let html, cls = "check";
+    if (n === 0) html = `<div>El control compara FTCS con la solución exacta en cada paso.</div>`;
+    else if (ok) html = `<div><strong>Control superado.</strong> FTCS coincide con la solución exacta: error máximo <b>${Lab.sci(err)}</b>${stable ? " (r ≤ ½, estable)." : ". Atención: r > ½, así que el método es inestable aunque este caso de prueba todavía no lo revele. Prueba el perfil triángulo."}</div>`;
+    else { cls += " bad"; html = `<div><strong>Control fallido.</strong> Error máximo <b>${Lab.sci(err)}</b>. ${stable ? "Revisar la implementación." : "Con r = " + Lab.fmt(r, 2) + " > ½ el método es inestable: el resultado no es física, es un artefacto numérico."}</div>`; }
+    $("check").className = cls; $("check").innerHTML = html;
+  }
+  let last = 0;
+  function frame(now) {
+    if (running && n < nTot && now - last > 30) {
+      const k = Math.max(1, Math.round(nTot / 150));
+      for (let j = 0; j < k && n < nTot; j++) { u = step(u, r); n++; t = n * dt; }
+      render(); last = now;
+    }
+    requestAnimationFrame(frame);
+  }
+  $("r").addEventListener("input", reset); $("ic").addEventListener("change", reset);
+  document.querySelectorAll("[data-r]").forEach(b => b.addEventListener("click", () => { $("r").value = b.dataset.r; reset(); running = true; $("play").textContent = "Pausar"; }));
+  $("reset").addEventListener("click", () => { reset(); running = true; $("play").textContent = "Pausar"; });
+  $("play").addEventListener("click", () => { running = !running; $("play").textContent = running ? "Pausar" : "Continuar"; });
+  window.addEventListener("resize", render);
+  if (Lab.reduced()) { while (n < nTot) { u = step(u, r); n++; t = n * dt; } }
+  reset(); requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

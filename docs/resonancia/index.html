@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Resonancia de un Oscilador</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/base.css">
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">← Todas las simulaciones</a>
+  <header>
+    <h1>Oscilador forzado: medir la curva de resonancia</h1>
+    <p>Una masa en un resorte, con amortiguamiento, empujada por una fuerza periódica. Mueve la frecuencia y observa el transitorio y el régimen estacionario. Luego «mide» puntos: cada uno se calcula integrando hasta que el transitorio se apaga, y se compara con la fórmula analítica de la amplitud.</p>
+    <div class="eq">ẍ + 2β ẋ + ω₀² x = (F₀/m) cos ωt · A(ω) = (F₀/m) / √((ω₀² − ω²)² + 4β²ω²) · pico en ω_r = √(ω₀² − 2β²)</div>
+  </header>
+
+  <div class="main">
+    <section class="panel" aria-label="Parámetros">
+      <h2>Fuerza y amortiguamiento</h2>
+      <label for="w"><span class="row">Frecuencia de la fuerza ω/ω₀ <output id="wo"></output></span><input id="w" type="range" min="0.3" max="1.7" step="0.01" value="0.85"></label>
+      <label for="b"><span class="row">Amortiguamiento β <output id="bo"></output></span><input id="b" type="range" min="0.2" max="4" step="0.1" value="0.6"></label>
+      <p class="note">ω₀ = 2π rad/s (1 Hz) y F₀/m = 1 N/kg. Al cambiar un parámetro, la animación vuelve a partir del reposo para que se vea el transitorio.</p>
+      <h2>Medición</h2>
+      <div class="btns">
+        <button id="meas" type="button">Medir este punto</button>
+        <button id="sweep" class="ghost" type="button">Barrido de 15 puntos</button>
+        <button id="clear" class="ghost" type="button">Borrar puntos</button>
+      </div>
+    </section>
+
+    <section class="stage" aria-label="Simulación">
+      <canvas id="cv" role="img" aria-label="Masa oscilando en un resorte y gráfica de posición en el tiempo"></canvas>
+      <div class="stats">
+        <div class="stat"><b id="sa">—</b><span>amplitud estacionaria teórica</span></div>
+        <div class="stat"><b id="sr">—</b><span>frecuencia de resonancia ω_r/ω₀</span></div>
+        <div class="stat"><b id="sf">—</b><span>desfase respuesta–fuerza</span></div>
+        <div class="stat"><b id="sq">—</b><span>factor de calidad Q = ω₀/2β</span></div>
+      </div>
+      <div class="legend"><span class="a">A(ω) analítica</span><span class="b">puntos medidos por simulación</span></div>
+      <canvas id="ch" role="img" aria-label="Curva de resonancia analítica con puntos medidos"></canvas>
+      <div class="check" id="check"></div>
+      <div class="aula"><strong>Para el aula.</strong> ¿Por qué el pico no está exactamente en ω₀? ¿Qué pasa con el pico cuando β supera ω₀/√2 ≈ 4,44 s⁻¹? Midan la fase en ω = ω₀: ¿vale siempre −90°?</div>
+    </section>
+  </div>
+  <footer>Material del Módulo 8, «El auxiliar aumentado». El mismo control, en Python, está en el cuaderno 02 de Colab. Licencia CC BY 4.0.</footer>
+</div>
+
+<script src="../assets/plot.js"></script>
+<script>
+(function () {
+  const w0 = 2 * Math.PI, F = 1;
+  const $ = id => document.getElementById(id);
+  const A = (w, b) => F / Math.sqrt((w0 * w0 - w * w) ** 2 + 4 * b * b * w * w);
+  const phase = (w, b) => -Math.atan2(2 * b * w, w0 * w0 - w * w);
+  function rk4(s, t, h, w, b) {
+    const f = (q, tt) => [q[1], F * Math.cos(w * tt) - 2 * b * q[1] - w0 * w0 * q[0]];
+    const k1 = f(s, t), k2 = f([s[0] + h / 2 * k1[0], s[1] + h / 2 * k1[1]], t + h / 2),
+          k3 = f([s[0] + h / 2 * k2[0], s[1] + h / 2 * k2[1]], t + h / 2), k4 = f([s[0] + h * k3[0], s[1] + h * k3[1]], t + h);
+    return [s[0] + h / 6 * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]), s[1] + h / 6 * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1])];
+  }
+  // Amplitud medida: integra hasta apagar el transitorio (e^-12) y toma el máximo de |x| en 3 períodos
+  function measure(w, b) {
+    const T = 2 * Math.PI / w, h = T / 400, tTr = 12 / b;
+    let s = [0, 0], t = 0;
+    while (t < tTr) { s = rk4(s, t, h, w, b); t += h; }
+    let m = 0; const tEnd = t + 3 * T;
+    while (t < tEnd) { s = rk4(s, t, h, w, b); t += h; m = Math.max(m, Math.abs(s[0])); }
+    return m;
+  }
+  window.__res = { A, measure, w0 };
+
+  let s, t, w, b, hist, pts = [];
+  function reset() {
+    w = +$("w").value * w0; b = +$("b").value;
+    $("wo").textContent = Lab.fmt(w / w0, 2); $("bo").textContent = Lab.fmt(b, 1) + " s⁻¹";
+    s = [0, 0]; t = 0; hist = { t: [], x: [] };
+    $("sa").textContent = Lab.fmt(A(w, b) * 100, 2) + " cm";
+    const wr2 = w0 * w0 - 2 * b * b; $("sr").textContent = wr2 > 0 ? Lab.fmt(Math.sqrt(wr2) / w0, 3) : "sin pico";
+    $("sf").textContent = Lab.fmt(phase(w, b) * 180 / Math.PI, 1) + "°";
+    $("sq").textContent = Lab.fmt(w0 / (2 * b), 1);
+    chart();
+  }
+  function draw() {
+    const { ctx, w: W, h: H } = Lab.fit($("cv"), 16 / 7);
+    ctx.fillStyle = Lab.css("--sheet"); ctx.fillRect(0, 0, W, H);
+    const scale = 0.35 * H / Math.max(A(w, b), 1e-9) * 0.9;   // la amplitud estacionaria ocupa ~35 % de la altura
+    const midY = H / 2, massX = 0.16 * W, top = 14;
+    // resorte
+    const y = midY + Math.max(-0.45 * H, Math.min(0.45 * H, s[0] * scale));
+    ctx.strokeStyle = Lab.css("--muted"); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(massX, top);
+    const coils = 12; for (let i = 1; i <= coils; i++) ctx.lineTo(massX + (i % 2 ? 12 : -12), top + (y - 22 - top) * i / coils);
+    ctx.lineTo(massX, y - 22); ctx.stroke();
+    ctx.fillStyle = Lab.css("--ink"); ctx.fillRect(massX - 40, top - 6, 80, 6);
+    ctx.fillStyle = Lab.css("--b"); ctx.fillRect(massX - 24, y - 22, 48, 44);
+    // traza x(t) de los últimos 8 s
+    const x0 = 0.32 * W, x1 = W - 10, span = 8;
+    ctx.strokeStyle = Lab.css("--grid"); ctx.beginPath(); ctx.moveTo(x0, midY); ctx.lineTo(x1, midY); ctx.stroke();
+    ctx.strokeStyle = Lab.css("--b"); ctx.lineWidth = 2; ctx.beginPath(); let st = false;
+    hist.t.forEach((tt, i) => { if (tt < t - span) return; const px = x1 - (t - tt) / span * (x1 - x0), py = midY + Math.max(-0.45 * H, Math.min(0.45 * H, hist.x[i] * scale));
+      st ? ctx.lineTo(px, py) : ctx.moveTo(px, py); st = true; }); ctx.stroke();
+    ctx.strokeStyle = Lab.css("--a"); ctx.setLineDash([5, 5]); ctx.lineWidth = 1;
+    [1, -1].forEach(sg => { ctx.beginPath(); ctx.moveTo(x0, midY + sg * A(w, b) * scale); ctx.lineTo(x1, midY + sg * A(w, b) * scale); ctx.stroke(); });
+    ctx.setLineDash([]); ctx.fillStyle = Lab.css("--muted"); ctx.font = "12px 'Atkinson Hyperlegible', sans-serif";
+    ctx.fillText("x(t), últimos 8 s · líneas punteadas: ± amplitud estacionaria teórica", x0, H - 8);
+  }
+  function chart() {
+    const ws = Array.from({ length: 300 }, (_, i) => 0.3 + 1.4 * i / 299);
+    const sorted = pts.slice().sort((p, q) => p.w - q.w);
+    Lab.plot($("ch"), 2.6, [
+      { xs: ws, ys: ws.map(r => A(r * w0, b) * 100), color: "--a", width: 2 },
+      { xs: sorted.map(p => p.w / w0), ys: sorted.map(p => p.m * 100), color: "--b", width: 0, points: true }
+    ], { xLabel: "ω / ω₀", yLabel: "amplitud (cm)", xmin: 0.3, xmax: 1.7, zeroBase: true, ymin: 0, vline: w / w0 });
+    const errs = pts.map(p => Math.abs(p.m - A(p.w, p.b)) / A(p.w, p.b)), mx = errs.length ? Math.max(...errs) : NaN;
+    const ok = !errs.length || mx < 5e-3;
+    $("check").className = "check" + (ok ? "" : " bad");
+    $("check").innerHTML = !errs.length ? "<div>Mide al menos un punto: el control compara la amplitud simulada con la fórmula analítica.</div>"
+      : `<div><strong>${ok ? "Control superado" : "Revisar"}.</strong> ${errs.length} punto(s) medido(s) con β = ${Lab.fmt(b, 1)} s⁻¹; diferencia máxima con la teoría: <b>${Lab.fmt(mx * 100, 3)} %</b>.</div>`;
+  }
+  let lastT = performance.now();
+  function frame(now) {
+    const dtw = Math.min(0.05, (now - lastT) / 1000); lastT = now;
+    if (!Lab.reduced()) {
+      const n = Math.max(1, Math.ceil(dtw / 0.002)), h = dtw / n;
+      for (let i = 0; i < n; i++) { s = rk4(s, t, h, w, b); t += h; }
+      hist.t.push(t); hist.x.push(s[0]); while (hist.t.length && hist.t[0] < t - 8.5) { hist.t.shift(); hist.x.shift(); }
+    }
+    draw(); requestAnimationFrame(frame);
+  }
+  ["w", "b"].forEach(id => $(id).addEventListener("input", () => { if (id === "b") pts = []; reset(); }));
+  $("meas").addEventListener("click", () => { pts.push({ w, b, m: measure(w, b) }); chart(); });
+  $("sweep").addEventListener("click", () => { for (let i = 0; i < 15; i++) { const ww = (0.3 + 1.4 * i / 14) * w0; pts.push({ w: ww, b, m: measure(ww, b) }); } chart(); });
+  $("clear").addEventListener("click", () => { pts = []; chart(); });
+  window.addEventListener("resize", chart);
+  reset(); requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

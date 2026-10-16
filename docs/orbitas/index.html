@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Órbitas de Kepler</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/base.css">
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">← Todas las simulaciones</a>
+  <header>
+    <h1>Órbitas de Kepler: RK4 frente a Verlet</h1>
+    <p>El mismo planeta, integrado con dos métodos y el <strong>mismo costo</strong> de cálculo: RK4 evalúa la fuerza 4 veces por paso, así que Verlet usa un paso 4 veces menor. RK4 es más preciso al principio, pero su energía deriva sin parar; Verlet es simpléctico y su error queda acotado para siempre, aunque la órbita gira lentamente (precesión numérica).</p>
+    <div class="eq">a = −GM r / |r|³ · GM☉ = 4π² UA³/año² · semieje a = 1 UA → período exacto T = a^(3/2) = 1 año</div>
+  </header>
+
+  <div class="main">
+    <section class="panel" aria-label="Parámetros">
+      <h2>Órbita</h2>
+      <label for="ec"><span class="row">Excentricidad e <output id="eco"></output></span><input id="ec" type="range" min="0.1" max="0.9" step="0.05" value="0.7"></label>
+      <h2>Integración</h2>
+      <label for="dt"><span class="row">Paso de RK4, Δt <output id="dto"></output></span><input id="dt" type="range" min="0.002" max="0.016" step="0.001" value="0.008"></label>
+      <p class="note">Verlet usa Δt/4. Con el paso por defecto: 125 pasos RK4 y 500 pasos Verlet por órbita, es decir, 500 evaluaciones de la fuerza para cada uno.</p>
+      <label for="sp">Velocidad
+        <select id="sp"><option value="0.2">0,2 órbitas por segundo</option><option value="1" selected>1 órbita por segundo</option><option value="5">5 órbitas por segundo</option></select>
+      </label>
+      <div class="btns">
+        <button id="play" type="button">Pausar</button>
+        <button id="reset" class="ghost" type="button">Reiniciar</button>
+      </div>
+    </section>
+
+    <section class="stage" aria-label="Simulación">
+      <div class="legend"><span class="b">RK4 (paso Δt)</span><span class="a">Verlet (paso Δt/4)</span></div>
+      <canvas id="cv" role="img" aria-label="Órbitas calculadas con RK4 y con Verlet alrededor del Sol"></canvas>
+      <div class="stats">
+        <div class="stat"><b id="so">0</b><span>órbitas completadas (de 200)</span></div>
+        <div class="stat"><b id="sr">—</b><span>|ΔE/E| de RK4 en la última órbita</span></div>
+        <div class="stat"><b id="sv">—</b><span>|ΔE/E| de Verlet en la última órbita</span></div>
+        <div class="stat"><b id="sp2">—</b><span>precesión de Verlet por órbita</span></div>
+      </div>
+      <canvas id="ch" role="img" aria-label="Error máximo de energía por órbita, escala logarítmica"></canvas>
+      <div class="check" id="check"></div>
+      <div class="aula"><strong>Para el aula.</strong> Si RK4 es de orden 4 y Verlet de orden 2, ¿por qué Verlet gana en simulaciones largas? ¿Qué método elegirían para simular el Sistema Solar durante un millón de años? Prueben e = 0,9: ¿qué pasa en el perihelio?</div>
+    </section>
+  </div>
+  <footer>Material del Módulo 8, «El auxiliar aumentado». La misma comparación, con controles en Python, está en el cuaderno 03 de Colab. Licencia CC BY 4.0.</footer>
+</div>
+
+<script src="../assets/plot.js"></script>
+<script>
+(function () {
+  const GM = 4 * Math.PI * Math.PI, a = 1, ORB = 200;
+  const $ = id => document.getElementById(id);
+  const acc = (x, y) => { const r3 = Math.pow(x * x + y * y, 1.5); return [-GM * x / r3, -GM * y / r3]; };
+  const energy = s => 0.5 * (s[2] * s[2] + s[3] * s[3]) - GM / Math.hypot(s[0], s[1]);
+  function rk4(s, h) {
+    const f = q => { const ac = acc(q[0], q[1]); return [q[2], q[3], ac[0], ac[1]]; };
+    const k1 = f(s), k2 = f(s.map((v, i) => v + h / 2 * k1[i])), k3 = f(s.map((v, i) => v + h / 2 * k2[i])), k4 = f(s.map((v, i) => v + h * k3[i]));
+    return s.map((v, i) => v + h / 6 * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]));
+  }
+  function verlet(s, h) {
+    let [x, y, vx, vy] = s; let ac = acc(x, y);
+    vx += h / 2 * ac[0]; vy += h / 2 * ac[1]; x += h * vx; y += h * vy;
+    ac = acc(x, y); vx += h / 2 * ac[0]; vy += h / 2 * ac[1];
+    return [x, y, vx, vy];
+  }
+  window.__orb = { rk4, verlet, energy, acc, GM };
+
+  let R, V, E0, dt, n, steps, envR, envV, trailR, trailV, peri, running = true, e, w0, wPrev, wCum;
+  function reset() {
+    e = +$("ec").value; dt = +$("dt").value;
+    $("eco").textContent = Lab.fmt(e, 2); $("dto").textContent = Lab.fmt(dt, 3) + " año";
+    const rp = a * (1 - e), vp = Math.sqrt(GM * (1 + e) / (a * (1 - e)));
+    R = [rp, 0, 0, vp]; V = R.slice(); E0 = energy(R);
+    n = Math.round(1 / dt); steps = 0; w0 = wPrev = argPeri(V); wCum = 0; envR = [0]; envV = [0]; trailR = []; trailV = []; peri = [];
+    draw(); chart(); stats();
+  }
+  function advance(nSteps) {
+    for (let k = 0; k < nSteps && steps < ORB * n; k++) {
+      R = rk4(R, dt);
+      for (let j = 0; j < 4; j++) {
+        V = verlet(V, dt / 4);
+      }
+      steps++;
+      if (steps % 5 === 0) { const w = argPeri(V); let d = w - wPrev; if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI; wCum += d; wPrev = w; }
+      const orb = Math.floor(steps / n);
+      if (envR.length <= orb) { envR.push(0); envV.push(0); }
+      envR[orb] = Math.max(envR[orb], Math.abs(energy(R) - E0) / Math.abs(E0));
+      envV[orb] = Math.max(envV[orb], Math.abs(energy(V) - E0) / Math.abs(E0));
+      if (steps % 2 === 0) { trailR.push([R[0], R[1]]); trailV.push([V[0], V[1]]); if (trailR.length > n) { trailR.shift(); trailV.shift(); } }
+    }
+  }
+  function argPeri(s) {   // ángulo del perihelio a partir del vector de Runge–Lenz
+    const [x, y, vx, vy] = s, h = x * vy - y * vx, r = Math.hypot(x, y);
+    const ex = vy * h / GM - x / r, ey = -vx * h / GM - y / r;
+    return Math.atan2(ey, ex);
+  }
+  const cv = $("cv"), ch = $("ch");
+  function draw() {
+    const { ctx, w, h } = Lab.fit(cv, 16 / 10);
+    ctx.fillStyle = Lab.css("--sheet"); ctx.fillRect(0, 0, w, h);
+    const span = 2.1 * a * (1 + e), sc = Math.min(w / span, h / (2 * a * Math.sqrt(1 - e * e) * 1.25 + 0.3)) * 0.92;
+    const cx = w / 2 + a * e * sc, cy = h / 2;
+    const P = (x, y) => [cx + x * sc, cy - y * sc];
+    ctx.strokeStyle = Lab.css("--grid"); ctx.setLineDash([3, 5]); ctx.beginPath();
+    for (let i = 0; i <= 200; i++) { const E = 2 * Math.PI * i / 200, p = P(a * (Math.cos(E) - e), a * Math.sqrt(1 - e * e) * Math.sin(E)); i ? ctx.lineTo(...p) : ctx.moveTo(...p); }
+    ctx.stroke(); ctx.setLineDash([]);
+    [[trailR, "--b", R], [trailV, "--a", V]].forEach(([tr, c, s]) => {
+      ctx.strokeStyle = Lab.css(c); ctx.lineWidth = 2; ctx.beginPath();
+      tr.forEach((p, i) => { const q = P(p[0], p[1]); i ? ctx.lineTo(...q) : ctx.moveTo(...q); }); ctx.stroke();
+      ctx.fillStyle = Lab.css(c); const q = P(s[0], s[1]); ctx.beginPath(); ctx.arc(q[0], q[1], 6, 0, 7); ctx.fill();
+    });
+    ctx.fillStyle = "#e0a020"; const sun = P(0, 0); ctx.beginPath(); ctx.arc(sun[0], sun[1], 9, 0, 7); ctx.fill();
+    ctx.fillStyle = Lab.css("--muted"); ctx.font = "12px 'Atkinson Hyperlegible', sans-serif"; ctx.fillText("línea punteada: órbita exacta", 10, h - 10);
+  }
+  function chart() {
+    const k = envR.length - 1, xs = [], yr = [], yv = [];
+    for (let i = 0; i < k; i++) { xs.push(i + 1); yr.push(envR[i]); yv.push(envV[i]); }
+    Lab.plot(ch, 3.2, [{ xs, ys: yr, color: "--b" }, { xs, ys: yv, color: "--a" }],
+      { logY: true, xmin: 0, xmax: ORB, ymin: 1e-6, ymax: 1, xLabel: "número de órbita", yLabel: "máx. |ΔE/E|" });
+  }
+  function stats() {
+    const k = envR.length - 1;
+    $("so").textContent = Math.min(k, ORB);
+    $("sr").textContent = k ? Lab.sci(envR[k - 1]) : "—";
+    $("sv").textContent = k ? Lab.sci(envV[k - 1]) : "—";
+    const orbits = steps / n, prec = orbits > 1 ? (wCum * 180 / Math.PI) / orbits : NaN;
+    $("sp2").textContent = Number.isFinite(prec) ? Lab.fmt(prec, 3) + "°" : "—";
+    if (k < 20) { $("check").className = "check"; $("check").innerHTML = "<div>Midiendo… el control se evalúa a partir de la órbita 20.</div>"; return; }
+    const first = (env) => Math.max(...env.slice(0, 10)), lastk = (env) => Math.max(...env.slice(k - 10, k));
+    const vvOk = lastk(envV) < 1.1 * first(envV), rkDrift = lastk(envR) / first(envR);
+    $("check").className = "check" + (vvOk ? "" : " bad");
+    $("check").innerHTML = `<div><strong>${vvOk ? "Control superado" : "Revisar"}.</strong> Verlet: error de energía de las últimas 10 órbitas <b>${Lab.sci(lastk(envV))}</b> frente a <b>${Lab.sci(first(envV))}</b> en las primeras 10 (acotado). RK4: el error creció <b>${Lab.fmt(rkDrift, 1)}</b> veces (deriva secular).</div>`;
+  }
+  let lastT = performance.now(), lastUi = 0, acc_ = 0;
+  function frame(now) {
+    const dtw = Math.min(0.1, (now - lastT) / 1000); lastT = now;
+    if (running && steps < ORB * n) {
+      acc_ += dtw * +$("sp").value * n; const k = Math.floor(acc_); acc_ -= k;
+      advance(k); draw();
+      if (now - lastUi > 300) { chart(); stats(); lastUi = now; }
+      if (steps >= ORB * n) { chart(); stats(); }
+    }
+    requestAnimationFrame(frame);
+  }
+  ["ec", "dt"].forEach(id => $(id).addEventListener("input", reset));
+  $("reset").addEventListener("click", () => { reset(); running = true; $("play").textContent = "Pausar"; });
+  $("play").addEventListener("click", () => { running = !running; $("play").textContent = running ? "Pausar" : "Continuar"; });
+  window.addEventListener("resize", () => { draw(); chart(); });
+  if (Lab.reduced()) { running = false; $("play").textContent = "Iniciar"; }
+  reset(); requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

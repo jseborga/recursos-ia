@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Péndulo Doble Caótico</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/base.css">
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">← Todas las simulaciones</a>
+  <header>
+    <h1>Péndulo doble: caos determinista</h1>
+    <p>Dos péndulos dobles idénticos, soltados con una diferencia inicial diminuta. Las ecuaciones son exactas y el cálculo es determinista; aun así, a los pocos segundos los movimientos ya no se parecen. La energía, que debe conservarse, es el control de que el integrador está bien.</p>
+    <div class="eq">ecuaciones de Lagrange · RK4 con Δt = 1 ms · E = T + V debe permanecer constante</div>
+  </header>
+
+  <div class="main">
+    <section class="panel" aria-label="Parámetros">
+      <h2>Condición inicial</h2>
+      <label for="t1"><span class="row">Ángulo del brazo 1, θ₁ <output id="t1o"></output></span><input id="t1" type="range" min="-170" max="170" value="120"></label>
+      <label for="t2"><span class="row">Ángulo del brazo 2, θ₂ <output id="t2o"></output></span><input id="t2" type="range" min="-170" max="170" value="-10"></label>
+      <label for="dl">Diferencia inicial entre A y B (en θ₁)
+        <select id="dl">
+          <option value="1e-9">10⁻⁹ rad (una milmillonésima)</option>
+          <option value="1e-6">10⁻⁶ rad</option>
+          <option value="1e-3" selected>10⁻³ rad (0,06°)</option>
+          <option value="1e-1">0,1 rad (5,7°)</option>
+        </select>
+      </label>
+      <p class="note">Masas iguales (1 kg), brazos de 1 m, g = 9,81 m/s². Con ángulos pequeños (prueba θ₁ = 10°, θ₂ = 5°) el movimiento es casi periódico y la separación no crece exponencialmente.</p>
+      <div class="btns">
+        <button id="play" type="button">Pausar</button>
+        <button id="reset" class="ghost" type="button">Reiniciar</button>
+      </div>
+    </section>
+
+    <section class="stage" aria-label="Simulación">
+      <div class="legend"><span class="a">Péndulo A</span><span class="b">Péndulo B (desplazado)</span></div>
+      <canvas id="cv" role="img" aria-label="Animación de los dos péndulos dobles con su trayectoria"></canvas>
+      <div class="stats">
+        <div class="stat"><b id="st">0,0 s</b><span>tiempo simulado</span></div>
+        <div class="stat"><b id="ss">—</b><span>separación entre A y B</span></div>
+        <div class="stat"><b id="se">—</b><span>error de energía |ΔE/E| de A</span></div>
+        <div class="stat"><b id="sl">—</b><span>exponente de Lyapunov estimado</span></div>
+      </div>
+      <canvas id="ch" role="img" aria-label="Separación entre A y B en escala logarítmica"></canvas>
+      <div class="check" id="check"></div>
+      <div class="aula"><strong>Para el aula.</strong> Con 10⁻⁹ rad, ¿a qué tiempo los péndulos dejan de parecerse? Si la separación crece como e^(λt), ¿cuántos segundos más se gana con una medición inicial mil veces más precisa? (Respuesta: ln(1000)/λ, unos pocos segundos.)</div>
+    </section>
+  </div>
+  <footer>Material del Módulo 8, «El auxiliar aumentado». La misma física, con controles en Python, está en el cuaderno 03 de Colab. Licencia CC BY 4.0.</footer>
+</div>
+
+<script src="../assets/plot.js"></script>
+<script>
+(function () {
+  const m1 = 1, m2 = 1, l1 = 1, l2 = 1, g = 9.81, DT = 0.001;
+  const $ = id => document.getElementById(id);
+
+  function deriv(s) {
+    const [t1, w1, t2, w2] = s, d = t2 - t1, c = Math.cos(d), sn = Math.sin(d);
+    const den1 = (m1 + m2) * l1 - m2 * l1 * c * c;
+    const a1 = (m2 * l1 * w1 * w1 * sn * c + m2 * g * Math.sin(t2) * c + m2 * l2 * w2 * w2 * sn - (m1 + m2) * g * Math.sin(t1)) / den1;
+    const den2 = (l2 / l1) * den1;
+    const a2 = (-m2 * l2 * w2 * w2 * sn * c + (m1 + m2) * (g * Math.sin(t1) * c - l1 * w1 * w1 * sn - g * Math.sin(t2))) / den2;
+    return [w1, a1, w2, a2];
+  }
+  function rk4(s, h) {
+    const k1 = deriv(s), k2 = deriv(s.map((x, i) => x + h / 2 * k1[i])),
+          k3 = deriv(s.map((x, i) => x + h / 2 * k2[i])), k4 = deriv(s.map((x, i) => x + h * k3[i]));
+    return s.map((x, i) => x + h / 6 * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]));
+  }
+  function energy(s) {
+    const [t1, w1, t2, w2] = s;
+    return 0.5 * (m1 + m2) * l1 * l1 * w1 * w1 + 0.5 * m2 * l2 * l2 * w2 * w2 + m2 * l1 * l2 * w1 * w2 * Math.cos(t1 - t2)
+      - (m1 + m2) * g * l1 * Math.cos(t1) - m2 * g * l2 * Math.cos(t2);
+  }
+  window.__pd = { deriv, rk4, energy };
+
+  let A, B, E0, t, hist, trailA, trailB, running = true, maxErr;
+  function reset() {
+    const t1 = +$("t1").value * Math.PI / 180, t2 = +$("t2").value * Math.PI / 180, d = +$("dl").value;
+    $("t1o").textContent = $("t1").value + "°"; $("t2o").textContent = $("t2").value + "°";
+    A = [t1, 0, t2, 0]; B = [t1 + d, 0, t2, 0]; E0 = energy(A); t = 0; maxErr = 0;
+    hist = { t: [0], sep: [d] }; trailA = []; trailB = [];
+    draw(); chart(); stats();
+  }
+  function tip(s) {
+    const x1 = l1 * Math.sin(s[0]), y1 = l1 * Math.cos(s[0]);
+    return [x1, y1, x1 + l2 * Math.sin(s[2]), y1 + l2 * Math.cos(s[2])];
+  }
+  function sep() { return Math.hypot(A[0] - B[0], A[2] - B[2]); }
+
+  const cv = $("cv"), ch = $("ch");
+  function draw() {
+    const { ctx, w, h } = Lab.fit(cv, 16 / 10);
+    ctx.fillStyle = Lab.css("--sheet"); ctx.fillRect(0, 0, w, h);
+    const sc = Math.min(w, h) / 4.6, ox = w / 2, oy = h / 2 - 0.1 * h;
+    const P = (x, y) => [ox + x * sc, oy + y * sc];
+    [[trailB, "--b"], [trailA, "--a"]].forEach(([tr, c]) => {
+      ctx.strokeStyle = Lab.css(c); ctx.globalAlpha = 0.35; ctx.lineWidth = 1.5; ctx.beginPath();
+      tr.forEach((p, i) => { const q = P(p[0], p[1]); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.stroke(); ctx.globalAlpha = 1;
+    });
+    [[B, "--b"], [A, "--a"]].forEach(([s, c]) => {
+      const [x1, y1, x2, y2] = tip(s), p0 = P(0, 0), p1 = P(x1, y1), p2 = P(x2, y2);
+      ctx.strokeStyle = Lab.css(c); ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(...p0); ctx.lineTo(...p1); ctx.lineTo(...p2); ctx.stroke();
+      ctx.fillStyle = Lab.css(c); [p1, p2].forEach(p => { ctx.beginPath(); ctx.arc(p[0], p[1], 9, 0, 7); ctx.fill(); });
+    });
+    ctx.fillStyle = Lab.css("--ink"); ctx.beginPath(); ctx.arc(ox, oy, 5, 0, 7); ctx.fill();
+  }
+  function chart() {
+    Lab.plot(ch, 3.2, [{ xs: hist.t, ys: hist.sep, color: "--ink", width: 2 }],
+      { logY: true, xLabel: "t (s)", yLabel: "separación (rad)", xmin: 0, xmax: Math.max(10, Math.ceil(t / 10) * 10), ymin: Math.min(1e-10, +$("dl").value), ymax: 10 });
+  }
+  function lyap() {
+    const xs = [], ys = [];
+    hist.t.forEach((tt, i) => { const s = hist.sep[i]; if (s > 10 * +$("dl").value && s < 1e-2) { xs.push(tt); ys.push(Math.log(s)); } });
+    if (xs.length < 20) return NaN;
+    const n = xs.length, mx = xs.reduce((a, b) => a + b) / n, my = ys.reduce((a, b) => a + b) / n;
+    let num = 0, den = 0; xs.forEach((x, i) => { num += (x - mx) * (ys[i] - my); den += (x - mx) ** 2; });
+    return num / den;
+  }
+  function stats() {
+    $("st").textContent = Lab.fmt(t, 1) + " s";
+    $("ss").textContent = Lab.sci(sep()) + " rad";
+    $("se").textContent = Lab.sci(maxErr);
+    const l = lyap(); $("sl").textContent = Number.isFinite(l) ? Lab.fmt(l, 2) + " s⁻¹" : "midiendo…";
+    const ok = maxErr < 1e-5;
+    $("check").className = "check" + (ok ? "" : " bad");
+    $("check").innerHTML = ok
+      ? `<div><strong>Control superado.</strong> La energía del péndulo A se conserva con error máximo <b>${Lab.sci(maxErr)}</b>. La divergencia entre A y B es física (caos), no un error numérico.</div>`
+      : `<div><strong>Revisar.</strong> El error de energía (${Lab.sci(maxErr)}) supera 10⁻⁵: el paso de tiempo es demasiado grande para este movimiento.</div>`;
+  }
+  let last = 0;
+  function frame(now) {
+    if (running) {
+      const steps = 16;                       // 16 ms de física por cuadro ≈ tiempo real
+      for (let k = 0; k < steps; k++) { A = rk4(A, DT); B = rk4(B, DT); t += DT; }
+      maxErr = Math.max(maxErr, Math.abs(energy(A) - E0) / Math.abs(E0));
+      const a = tip(A), b = tip(B); trailA.push([a[2], a[3]]); trailB.push([b[2], b[3]]);
+      if (trailA.length > 400) { trailA.shift(); trailB.shift(); }
+      hist.t.push(t); hist.sep.push(sep());
+      draw();
+      if (now - last > 250) { chart(); stats(); last = now; }
+      if (t > 60) { running = false; $("play").textContent = "Continuar"; chart(); stats(); }
+    }
+    requestAnimationFrame(frame);
+  }
+  ["t1", "t2", "dl"].forEach(id => $(id).addEventListener("input", reset));
+  $("reset").addEventListener("click", () => { reset(); running = true; $("play").textContent = "Pausar"; });
+  $("play").addEventListener("click", () => { running = !running; $("play").textContent = running ? "Pausar" : "Continuar"; if (t > 60 && running) reset(); });
+  window.addEventListener("resize", () => { draw(); chart(); });
+  if (Lab.reduced()) { running = false; $("play").textContent = "Iniciar"; }
+  reset(); requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

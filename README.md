@@ -4,16 +4,36 @@ Simulaciones web y cuadernos de Google Colab, publicados gratis desde GitHub. Ca
 Material de demostración del Módulo 8, «El auxiliar aumentado» (Curso de Actualización Pedagógica en Tiempos de la IA, FCPN).
 
 ```
-docs/                                ← sitio web (GitHub Pages o Cloudflare)
-├── index.html                       ← portada
-├── tiro-parabolico/index.html       ← simulación RK4 con arrastre
-└── banco-problemas/index.html       ← práctica con datos por estudiante
+docs/                                ← sitio web: https://jseborga.github.io/recursos-ia/
+├── index.html                       ← portada con vistas previas animadas
+├── pendulo-doble/                   ← caos determinista (control: energía)
+├── orbitas/                         ← Kepler, RK4 frente a Verlet (control: energía por órbita)
+├── calor/                           ← ecuación del calor y estabilidad r ≤ ½ (control: serie de Fourier)
+├── resonancia/                      ← oscilador forzado (control: amplitud analítica)
+├── tiro-parabolico/                 ← arrastre del aire en La Paz (control: caso sin aire)
+├── banco-problemas/                 ← práctica con datos por estudiante
+└── assets/                          ← estilo y utilidades de gráficas compartidas
 notebooks/                           ← cuadernos para Google Colab
-├── 01_verificacion_taller.ipynb     ← verifica las dos páginas web
+├── 01_verificacion_taller.ipynb     ← verifica las dos páginas básicas
 ├── 02_fisica_clasica.ipynb          ← 6 ejemplos de Física Básica
 └── 03_fisica_avanzada.ipynb         ← 5 ejemplos de métodos numéricos
 wrangler.jsonc                       ← solo para la ruta Cloudflare Workers
 ```
+
+## Simulaciones en el navegador
+
+Sitio: **https://jseborga.github.io/recursos-ia/**. Cada simulación muestra en pantalla su propio control de verificación:
+
+| Simulación | Qué muestra | Control |
+|---|---|---|
+| [Péndulo doble](https://jseborga.github.io/recursos-ia/pendulo-doble/) | Una diferencia de 10⁻⁹ rad se vuelve visible a los ~19 s | Energía conservada (error < 10⁻⁶) |
+| [Órbitas de Kepler](https://jseborga.github.io/recursos-ia/orbitas/) | RK4 deriva; Verlet queda acotado pero precesa | Error de energía por órbita |
+| [Ecuación del calor](https://jseborga.github.io/recursos-ia/calor/) | r = 0,50 exacto, r = 0,52 explota | Serie de Fourier exacta |
+| [Resonancia](https://jseborga.github.io/recursos-ia/resonancia/) | Transitorio, régimen estacionario y curva A(ω) | Amplitud analítica (diferencia < 0,01 %) |
+| [Tiro parabólico](https://jseborga.github.io/recursos-ia/tiro-parabolico/) | Arrastre del aire con ρ de La Paz | Caso sin aire = fórmula analítica |
+| [Banco de problemas](https://jseborga.github.io/recursos-ia/banco-problemas/) | Datos distintos por estudiante | Respuestas recalculadas en Python |
+
+Los resultados numéricos de las simulaciones coinciden con los cuadernos de Python (por ejemplo, la separación del péndulo doble supera 0,1 rad a los 19,0 s en ambos).
 
 ## Cuadernos de Colab
 

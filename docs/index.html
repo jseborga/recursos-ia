@@ -2,33 +2,157 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Recursos de Física con IA</title>
+<meta name="description" content="Simulaciones de física hechas con IA y verificadas: tiro parabólico, péndulo doble, órbitas de Kepler, ecuación del calor, resonancia y cuadernos de Google Colab.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/base.css">
 <style>
-:root{--bg:#f2f4f6;--card:#fcfdfd;--ink:#1b2530;--muted:#5b6876;--line:#d3dae1;--accent:#2d55a0}
-@media (prefers-color-scheme: dark){:root{--bg:#10161c;--card:#151d25;--ink:#e2e9ef;--muted:#9aa8b5;--line:#283642;--accent:#86aef0;color-scheme:dark}}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,"Segoe UI",sans-serif;padding:32px max(16px,4vw)}
-main{max-width:760px;margin:0 auto;display:grid;gap:16px}
-h1{margin:0;font-size:clamp(1.6rem,4vw,2.2rem);line-height:1.15}
-p{margin:0;color:var(--muted)}
-a.card{display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;color:inherit;text-decoration:none}
-a.card:hover,a.card:focus-visible{border-color:var(--accent)}
-a.card strong{color:var(--accent);font-size:1.1rem}
+  .hero{display:grid;grid-template-columns:1.2fr 1fr;gap:28px;align-items:center;padding-block:12px 8px}
+  @media (max-width:860px){.hero{grid-template-columns:1fr}}
+  .kicker{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--b);margin:0}
+  .hero h1{font-family:var(--f-display);font-weight:800;font-size:clamp(2.1rem,5.4vw,3.6rem);line-height:1;margin:.3rem 0 0;letter-spacing:-.02em;text-wrap:balance}
+  .hero h1 em{font-style:normal;color:var(--b)}
+  .hero p.lead{color:var(--muted);font-size:1.05rem;max-width:58ch;margin:.9rem 0 0}
+  .rule{display:flex;gap:10px;flex-wrap:wrap;margin-top:1rem}
+  .rule span{font-family:var(--f-mono);font-size:.8rem;border:1px solid var(--line);border-radius:999px;padding:4px 10px;background:var(--sheet)}
+  .hero canvas{border:1px solid var(--line);border-radius:10px;background:var(--sheet)}
+  h2.sec{font-family:var(--f-display);font-size:1.35rem;margin:22px 0 2px;display:flex;align-items:baseline;gap:12px}
+  h2.sec small{font-family:var(--f-body);font-weight:400;font-size:.9rem;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+  .card{display:grid;grid-template-rows:auto 1fr;background:var(--sheet);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none;transition:border-color .15s, transform .15s}
+  .card:hover,.card:focus-visible{border-color:var(--b);transform:translateY(-2px);outline:none}
+  .card canvas{aspect-ratio:16/9;width:100%;height:auto;border-bottom:1px solid var(--line)}
+  .card .body{padding:12px 14px 14px;display:grid;gap:6px;align-content:start}
+  .card h3{font-family:var(--f-display);font-size:1.08rem;margin:0}
+  .card p{margin:0;font-size:.88rem;color:var(--muted)}
+  .tag{justify-self:start;font-family:var(--f-mono);font-size:.72rem;padding:2px 8px;border-radius:999px;border:1px solid var(--line)}
+  .tag.ok{color:var(--ok);border-color:currentColor}
+  .nb{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+  .nb a{display:grid;gap:4px;background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:14px;color:inherit;text-decoration:none}
+  .nb a:hover,.nb a:focus-visible{border-color:var(--a);outline:none}
+  .nb strong{font-family:var(--f-display)}
+  .nb span{font-size:.86rem;color:var(--muted)}
+  .nb .go{font-family:var(--f-mono);font-size:.78rem;color:var(--a)}
+  .method{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;counter-reset:m}
+  .method div{border-top:3px solid var(--line);padding-top:8px;font-size:.9rem;counter-increment:m}
+  .method div::before{content:counter(m);font-family:var(--f-display);font-weight:800;color:var(--b);margin-right:8px}
+  .method div.key{border-color:var(--b)}
 </style>
 </head>
 <body>
-<main>
-  <h1>Recursos de Física con IA</h1>
-  <p>Material de demostración del Módulo 8, «El auxiliar aumentado». Cada recurso es un único archivo HTML sin dependencias de servidor.</p>
-  <a class="card" href="tiro-parabolico/"><strong>Tiro parabólico con y sin aire</strong><br>Simulación RK4 con arrastre cuadrático, parámetros de La Paz y autoverificación analítica.</a>
-  <a class="card" href="banco-problemas/"><strong>Práctica de Física Básica I</strong><br>Problemas con datos distintos por estudiante, calificación automática y clave docente.</a>
-  <h2 style="margin:12px 0 0;font-size:1.25rem">Cuadernos de Google Colab</h2>
-  <p>Se abren como copia editable; ejecútelos con <em>Entorno de ejecución → Ejecutar todo</em>.</p>
-  <a class="card" href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/01_verificacion_taller.ipynb"><strong>01 · Verificación del taller</strong><br>Las dos páginas web, recalculadas de forma independiente en Python.</a>
-  <a class="card" href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/02_fisica_clasica.ipynb"><strong>02 · Física clásica</strong><br>Péndulo de amplitud grande, caída con aire, resonancia, RC, choques y ajuste de g.</a>
-  <a class="card" href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/03_fisica_avanzada.ipynb"><strong>03 · Física avanzada</strong><br>Kepler, péndulo doble, ecuación del calor, oscilador cuántico e incertidumbre por Monte Carlo.</a>
-  <p>Código fuente: <a href="https://github.com/jseborga/recursos-ia">github.com/jseborga/recursos-ia</a></p>
-  <p>Licencia: CC BY 4.0. Revise siempre los valores numéricos antes de usarlos en evaluación.</p>
-</main>
+<div class="wrap">
+  <section class="hero">
+    <div>
+      <p class="kicker">Módulo 8 · El auxiliar aumentado · FCPN</p>
+      <h1>Física que <em>se verifica</em> antes de llegar al aula</h1>
+      <p class="lead">Simulaciones y cuadernos generados con inteligencia artificial. Cada uno trae su propio control: una solución exacta, una ley de conservación o una segunda implementación en otro lenguaje. Si el control falla, la página lo dice.</p>
+      <div class="rule"><span>La IA redacta</span><span>el auxiliar verifica</span><span>gratis, desde el celular</span></div>
+    </div>
+    <canvas id="hero" role="img" aria-label="Animación: un péndulo doble y su trayectoria caótica"></canvas>
+  </section>
+
+  <h2 class="sec">Simulaciones avanzadas <small>donde elegir mal el método da resultados falsos que se ven bien</small></h2>
+  <div class="grid">
+    <a class="card" href="pendulo-doble/"><canvas data-prev="pendulo"></canvas><div class="body"><h3>Péndulo doble caótico</h3><p>Dos péndulos que difieren en 10⁻⁹ rad dejan de parecerse a los 19 s. La energía conservada prueba que es caos y no un error.</p><span class="tag ok">✔ control: energía</span></div></a>
+    <a class="card" href="orbitas/"><canvas data-prev="orbita"></canvas><div class="body"><h3>Órbitas de Kepler</h3><p>RK4 frente a Verlet con el mismo costo: uno pierde energía sin parar, el otro la conserva pero precesa.</p><span class="tag ok">✔ control: energía por órbita</span></div></a>
+    <a class="card" href="calor/"><canvas data-prev="calor"></canvas><div class="body"><h3>Ecuación del calor</h3><p>Con r = 0,50 el método es exacto; con r = 0,52 explota. La serie de Fourier exacta lo delata.</p><span class="tag ok">✔ control: solución exacta</span></div></a>
+    <a class="card" href="resonancia/"><canvas data-prev="resonancia"></canvas><div class="body"><h3>Resonancia</h3><p>Mueve la frecuencia, mira el transitorio y mide la curva de resonancia punto por punto.</p><span class="tag ok">✔ control: amplitud analítica</span></div></a>
+  </div>
+
+  <h2 class="sec">Para empezar <small>Física Básica I</small></h2>
+  <div class="grid">
+    <a class="card" href="tiro-parabolico/"><canvas data-prev="tiro"></canvas><div class="body"><h3>Tiro parabólico en La Paz</h3><p>Arrastre del aire con la densidad a 3640 m. Sin aire, el integrador reproduce la fórmula del libro.</p><span class="tag ok">✔ control: caso sin aire</span></div></a>
+    <a class="card" href="banco-problemas/"><canvas data-prev="banco"></canvas><div class="body"><h3>Banco de problemas</h3><p>Los mismos seis problemas con datos distintos para cada estudiante, y la clave docente en CSV.</p><span class="tag ok">✔ control: recalculado en Python</span></div></a>
+  </div>
+
+  <h2 class="sec">Cuadernos de Google Colab <small>se abren como copia editable; Entorno de ejecución → Ejecutar todo</small></h2>
+  <div class="nb">
+    <a href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/01_verificacion_taller.ipynb"><strong>01 · Verificación del taller</strong><span>Las dos páginas básicas, recalculadas en Python con otro método.</span><span class="go">Abrir en Colab →</span></a>
+    <a href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/02_fisica_clasica.ipynb"><strong>02 · Física clásica</strong><span>Péndulo de amplitud grande, caída con aire, resonancia, RC, choques y ajuste de g.</span><span class="go">Abrir en Colab →</span></a>
+    <a href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/03_fisica_avanzada.ipynb"><strong>03 · Física avanzada</strong><span>Kepler, péndulo doble, ecuación del calor, oscilador cuántico e incertidumbre por Monte Carlo.</span><span class="go">Abrir en Colab →</span></a>
+  </div>
+
+  <h2 class="sec">Cómo se hizo cada recurso</h2>
+  <div class="method">
+    <div>Un prompt con rol, contexto, tarea y formato.</div>
+    <div>La IA escribe el código de la simulación.</div>
+    <div class="key"><strong>Verificación:</strong> caso límite, ley de conservación o segunda implementación.</div>
+    <div>Publicación gratuita con GitHub Pages.</div>
+  </div>
+
+  <footer>Material del Módulo 8, «El auxiliar aumentado», Curso de Actualización Pedagógica en Tiempos de la IA (FCPN). Código fuente: <a href="https://github.com/jseborga/recursos-ia">github.com/jseborga/recursos-ia</a>. Licencia CC BY 4.0. Revise siempre los valores numéricos antes de usarlos en una evaluación.</footer>
+</div>
+
+<script src="assets/plot.js"></script>
+<script>
+(function () {
+  const still = Lab.reduced();
+  // --- Héroe: péndulo doble con estela (física real, RK4) ---
+  const g = 9.81;
+  function d(s) { const [a, wa, b, wb] = s, dd = b - a, c = Math.cos(dd), sn = Math.sin(dd), den = 2 - c * c;
+    return [wa, (wa * wa * sn * c + g * Math.sin(b) * c + wb * wb * sn - 2 * g * Math.sin(a)) / den, wb, (-wb * wb * sn * c + 2 * (g * Math.sin(a) * c - wa * wa * sn - g * Math.sin(b))) / den]; }
+  function rk(s, h) { const k1 = d(s), k2 = d(s.map((x, i) => x + h / 2 * k1[i])), k3 = d(s.map((x, i) => x + h / 2 * k2[i])), k4 = d(s.map((x, i) => x + h * k3[i])); return s.map((x, i) => x + h / 6 * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i])); }
+  let P = [2.2, 0, 2.6, 0], Q = [2.2 + 1e-3, 0, 2.6, 0], tr = [[], []];
+  const hero = document.getElementById("hero");
+  function heroDraw() {
+    const { ctx, w, h } = Lab.fit(hero, 1.25); ctx.fillStyle = Lab.css("--sheet"); ctx.fillRect(0, 0, w, h);
+    const sc = Math.min(w, h) / 4.6, ox = w / 2, oy = h / 2;
+    [[Q, "--b", tr[1]], [P, "--a", tr[0]]].forEach(([s, c, t]) => {
+      const x1 = Math.sin(s[0]), y1 = Math.cos(s[0]), x2 = x1 + Math.sin(s[2]), y2 = y1 + Math.cos(s[2]);
+      t.push([x2, y2]); if (t.length > 260) t.shift();
+      ctx.strokeStyle = Lab.css(c); ctx.globalAlpha = .35; ctx.lineWidth = 1.5; ctx.beginPath();
+      t.forEach((p, i) => i ? ctx.lineTo(ox + p[0] * sc, oy + p[1] * sc) : ctx.moveTo(ox + p[0] * sc, oy + p[1] * sc)); ctx.stroke(); ctx.globalAlpha = 1;
+      ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox + x1 * sc, oy + y1 * sc); ctx.lineTo(ox + x2 * sc, oy + y2 * sc); ctx.stroke();
+      ctx.fillStyle = Lab.css(c); [[x1, y1], [x2, y2]].forEach(p => { ctx.beginPath(); ctx.arc(ox + p[0] * sc, oy + p[1] * sc, 7, 0, 7); ctx.fill(); });
+    });
+    ctx.fillStyle = Lab.css("--muted"); ctx.font = "12px 'JetBrains Mono', monospace"; ctx.fillText("Δθ inicial = 0,001 rad", 12, h - 12);
+  }
+  // --- Vistas previas de las tarjetas ---
+  const prev = {
+    pendulo(ctx, w, h, t) { const a = 0.8 * Math.sin(t * 1.3), b = 1.3 * Math.sin(t * 2.1 + 1) + 0.4 * Math.sin(t * 3.7); const ox = w / 2, oy = h * .12, L = h * .38;
+      ctx.fillStyle = Lab.css("--ink"); ctx.beginPath(); ctx.arc(ox, oy, 4, 0, 7); ctx.fill();
+      const x1 = ox + L * Math.sin(a), y1 = oy + L * Math.cos(a), x2 = x1 + L * Math.sin(b), y2 = y1 + L * Math.cos(b);
+      ctx.strokeStyle = Lab.css("--a"); ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      ctx.fillStyle = Lab.css("--a"); [[x1, y1], [x2, y2]].forEach(p => { ctx.beginPath(); ctx.arc(p[0], p[1], 6, 0, 7); ctx.fill(); }); },
+    orbita(ctx, w, h, t) { const e = .6, a = h * .36, b = a * Math.sqrt(1 - e * e), cx = w / 2 + a * e * .5, cy = h / 2;
+      ctx.strokeStyle = Lab.css("--grid"); ctx.beginPath(); ctx.ellipse(cx - a * e, cy, a, b, 0, 0, 7); ctx.stroke();
+      ctx.strokeStyle = Lab.css("--a"); ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(cx - a * e, cy, a, b, .25, 0, 7); ctx.stroke();
+      ctx.strokeStyle = Lab.css("--b"); ctx.beginPath(); ctx.ellipse(cx - a * e * .8, cy, a * .82, b * .82, 0, 0, 7); ctx.stroke();
+      ctx.fillStyle = "#e0a020"; ctx.beginPath(); ctx.arc(cx, cy, 7, 0, 7); ctx.fill();
+      let M = t * 1.2, E = M; for (let i = 0; i < 6; i++) E = M + e * Math.sin(E);
+      ctx.fillStyle = Lab.css("--a"); ctx.beginPath(); ctx.arc(cx - a * e + a * Math.cos(E), cy + b * Math.sin(E), 5, 0, 7); ctx.fill(); },
+    calor(ctx, w, h, t) { const n = 41, k = Math.exp(-((t % 6) / 6) * 3);
+      ctx.strokeStyle = Lab.css("--a"); ctx.lineWidth = 3; ctx.beginPath();
+      for (let i = 0; i < n; i++) { const x = i / (n - 1), y = 0.5 * Math.sin(Math.PI * x) * k; const px = 16 + x * (w - 32), py = h - 16 - y * (h - 32) * 1.6; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); } ctx.stroke();
+      ctx.strokeStyle = Lab.css("--b"); ctx.lineWidth = 1.5; ctx.beginPath();
+      for (let i = 0; i < n; i++) { const x = i / (n - 1), y = 0.5 * Math.sin(Math.PI * x) * k + (i % 2 ? 1 : -1) * 0.18 * Math.min(1, (t % 6) / 6) ** 3; const px = 16 + x * (w - 32), py = h - 16 - y * (h - 32) * 1.6; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); } ctx.stroke(); },
+    resonancia(ctx, w, h, t) { const A = r => 1 / Math.sqrt((1 - r * r) ** 2 + 4 * .12 * .12 * r * r);
+      ctx.strokeStyle = Lab.css("--a"); ctx.lineWidth = 2.5; ctx.beginPath();
+      for (let i = 0; i <= 80; i++) { const r = .3 + 1.4 * i / 80, px = 14 + (w - 28) * i / 80, py = h - 14 - (A(r) / A(.985)) * (h - 30); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); } ctx.stroke();
+      const r = 1 + .6 * Math.sin(t * .7), px = 14 + (w - 28) * (r - .3) / 1.4, py = h - 14 - (A(r) / A(.985)) * (h - 30);
+      ctx.fillStyle = Lab.css("--b"); ctx.beginPath(); ctx.arc(px, py, 6, 0, 7); ctx.fill(); },
+    tiro(ctx, w, h, t) { const T = (t % 4) / 4;
+      ctx.strokeStyle = Lab.css("--a"); ctx.setLineDash([6, 5]); ctx.lineWidth = 2; ctx.beginPath();
+      for (let i = 0; i <= 60; i++) { const s = i / 60, px = 14 + s * (w - 28), py = h - 14 - 4 * s * (1 - s) * (h - 30); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); } ctx.stroke(); ctx.setLineDash([]);
+      ctx.strokeStyle = Lab.css("--b"); ctx.lineWidth = 3; ctx.beginPath(); let lx = 0, ly = 0;
+      for (let i = 0; i <= 60 * T; i++) { const s = i / 60, px = 14 + s * .62 * (w - 28), py = h - 14 - 3.3 * s * (1 - s ** 1.6) * (h - 30) * .9; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); lx = px; ly = py; } ctx.stroke();
+      ctx.fillStyle = Lab.css("--b"); ctx.beginPath(); ctx.arc(lx, ly, 5, 0, 7); ctx.fill(); },
+    banco(ctx, w, h, t) { ctx.font = "600 13px 'JetBrains Mono', monospace"; const rows = ["1234567  a = 4,57 m/s²  ✔", "2345678  a = 3,83 m/s²  ✔", "3456789  a = 3,24 m/s²  ✔", "4567890  a = 1,23 m/s²  ✔"];
+      const k = Math.floor(t * .8) % 4; rows.forEach((r, i) => { ctx.fillStyle = Lab.css(i === k ? "--b" : "--muted"); ctx.fillText(r, 16, 34 + i * (h - 40) / 4); }); }
+  };
+  const cards = [...document.querySelectorAll("canvas[data-prev]")];
+  function drawCards(t) { cards.forEach(cv => { const { ctx, w, h } = Lab.fit(cv, 16 / 9); ctx.fillStyle = Lab.css("--sheet"); ctx.fillRect(0, 0, w, h); prev[cv.dataset.prev](ctx, w, h, t); }); }
+  let t0 = performance.now();
+  function frame(now) {
+    for (let i = 0; i < 8; i++) { P = rk(P, .002); Q = rk(Q, .002); }
+    heroDraw(); drawCards((now - t0) / 1000);
+    if (!still) requestAnimationFrame(frame);
+  }
+  if (still) { for (let i = 0; i < 2000; i++) { P = rk(P, .002); Q = rk(Q, .002); } }
+  requestAnimationFrame(frame);
+  window.addEventListener("resize", () => { heroDraw(); drawCards((performance.now() - t0) / 1000); });
+})();
+</script>
 </body>
 </html>
