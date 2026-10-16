@@ -66,7 +66,12 @@
     <a class="card" href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/04_metodos_numericos.ipynb"><canvas data-prev="metodos"></canvas><div class="body"><h3>Cuaderno 04 en Colab</h3><p>FEM, Laplace 2D, fenómeno de Gibbs, ecuación de onda, pozo finito e Ising. FIS-242/252/253, FIS-360/370/380.</p><span class="tag ok">✔ 12 controles automáticos</span></div></a>
     <a class="card" href="algebra-lineal/"><canvas data-prev="matriz"></canvas><div class="body"><h3>Matrices que se ven</h3><p>Una matriz deforma el plano: autovectores, determinante y elipse. Luego, modos normales de masas acopladas. FIS-240.</p><span class="tag ok">✔ control: área medida = |det A|</span></div></a>
     <a class="card" href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/05_matrices_tensores.ipynb"><canvas data-prev="tensor"></canvas><div class="body"><h3>Cuaderno 05: ecuaciones y tensores</h3><p>SymPy y NumPy: Kirchhoff en símbolos, la matriz de Hilbert que engaña, tensor de inercia, Levi-Civita y Lorentz.</p><span class="tag ok">✔ 18 controles automáticos</span></div></a>
+  </div>
+
+  <h2 class="sec">La IA, puesta a prueba <small>qué herramienta usar y cómo calificar lo que responde</small></h2>
+  <div class="grid">
     <a class="card" href="herramientas/"><canvas data-prev="flujo"></canvas><div class="body"><h3>Herramientas de IA</h3><p>Perplexity, Gemini Notebook, ChatGPT y Codex, Claude y Claude Code, Z.ai, Colab y Copilot: para qué sirve cada una y cuánto cuesta.</p><span class="tag ok">✔ datos con fuente y fecha</span></div></a>
+    <a class="card" href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/06_ia_abierta.ipynb"><canvas data-prev="examen"></canvas><div class="body"><h3>Una IA abierta, calificada por Python</h3><p>Qwen3 corre gratis dentro de Colab y responde ocho preguntas de física. Python lo califica: 5 de 8, con un DOI inventado incluido.</p><span class="tag ok">✔ clave verificada por un segundo método</span></div></a>
   </div>
 
   <h2 class="sec">Para empezar <small>Física Básica I</small></h2>
@@ -158,6 +163,11 @@
       const rows = ["εᵢⱼₖ εᵢₘₙ = δⱼₘδₖₙ − δⱼₙδₖₘ", "Λᵀ η Λ = η", "Iᵢⱼ = Σ m (r²δᵢⱼ − rᵢrⱼ)"], k = Math.floor(t * .7) % 3;
       rows.forEach((r, i) => { ctx.fillStyle = Lab.css(i === k ? "--b" : "--muted"); ctx.fillText(r + (i === k ? "  ✔" : ""), w / 2, h * (i + 1) / 4); });
       ctx.textAlign = "left"; ctx.textBaseline = "alphabetic"; },
+    examen(ctx, w, h, t) { const rows = [["Caída libre", "2,019 s", "2,02", 1], ["Péndulo", "2,009 s", "6,33", 0], ["Escape", "11,19 km/s", "8980", 0], ["0,8c ⊕ 0,8c", "0,9756c", "0,9804", 0], ["Paralelo", "2 Ω", "2", 1]];
+      const k = Math.floor(t * .9) % (rows.length + 2); ctx.font = "600 12px 'JetBrains Mono', monospace";
+      rows.forEach((r, i) => { if (i >= k) return; const y = 26 + i * (h - 34) / rows.length;
+        ctx.fillStyle = Lab.css("--muted"); ctx.fillText(r[0], 14, y); ctx.fillText(r[1], w * .42, y);
+        ctx.fillStyle = Lab.css(r[3] ? "--ok" : "--b"); ctx.fillText(r[2] + (r[3] ? "  ✔" : "  ✘"), w * .72, y); }); },
     fem(ctx, w, h, t) { const N = 2 + Math.floor(t * .7) % 9, X = x => 14 + x * (w - 28), Y = y => h - 16 - y * (h - 34);
       ctx.strokeStyle = Lab.css("--a"); ctx.lineWidth = 5; ctx.beginPath();
       for (let i = 0; i <= 80; i++) { const x = i / 80; i ? ctx.lineTo(X(x), Y(Math.sin(Math.PI * x))) : ctx.moveTo(X(x), Y(0)); } ctx.stroke();

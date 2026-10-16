@@ -44,6 +44,7 @@
     <p>No hace falta usarlas todas. Cada una sirve para un paso distinto del trabajo; lo que no se delega nunca es la verificación. Los datos de planes y precios cambian cada pocas semanas: aquí figuran con su fuente y la fecha en que se consultaron (16 de octubre de 2026).</p>
   </header>
 
+  <p style="margin:10px 0 0">Más abajo: <a href="#probar">probar una IA abierta y calificarla con Python</a> (cuaderno 06).</p>
   <div class="flow" aria-label="Flujo de trabajo">
     <div><b>1 · Buscar</b>Perplexity: respuestas con enlaces que se pueden revisar.</div>
     <div><b>2 · Resumir</b>Gemini Notebook: preguntas sobre tus propios apuntes, PDF y repositorios.</div>
@@ -132,6 +133,22 @@
       <p class="src">Fuentes: <a href="https://docs.github.com/en/copilot/how-tos/copilot-on-github/set-up-copilot/enable-copilot/set-up-for-teachers-and-os-maintainers">Documentación de GitHub, docentes y mantenedores</a> (consultada el 16 oct 2026); <a href="https://roboin.io/article/en/2026/04/21/github-copilot-sign-ups-suspended.md">Roboin, suspensión de altas</a> (21 abr 2026; secundaria).</p>
     </article>
   </div>
+
+  <h2 class="sec" id="probar">Probar una IA abierta, sin cuenta y sin pagar</h2>
+  <p>El cuaderno 06 descarga un modelo de pesos abiertos (Qwen3, licencia Apache 2.0) dentro de Google Colab, le hace ocho preguntas de física con respuesta conocida y lo califica con Python. No hace falta cuenta en Hugging Face ni clave de API. Con GPU T4 gratuita tarda unos 5 minutos en total.</p>
+  <div style="overflow-x:auto"><table class="map">
+    <thead><tr><th>Pregunta</th><th>Clave</th><th>Qwen3-1.7B, corrida 1</th><th>Corrida 2</th></tr></thead>
+    <tbody>
+      <tr><td>Período del péndulo (L = 1 m, g = 9,78 m/s²)</td><td>2,009 s</td><td><span class="gap">6,33 s</span>: fórmula bien, multiplicación mal</td><td>2,00 s (3 cifras; se pidieron 4)</td></tr>
+      <tr><td>Velocidad de escape terrestre</td><td>11,19 km/s</td><td><span class="gap">8980 km/s</span>: canceló el radio</td><td><span class="gap">2,824 km/s</span></td></tr>
+      <tr><td>0,8c + 0,8c (relatividad)</td><td>0,9756c</td><td>0,98; 1,6; 16; 1,6; 0,98 en cinco repeticiones</td><td><span class="gap">0,9804c</span> las cinco veces: escribe 1,6/1,64 y divide mal</td></tr>
+      <tr><td>Referencia con DOI</td><td>—</td><td><span class="gap">DOI inexistente</span> (doi.org: 404)</td><td><span class="gap">DOI inexistente</span></td></tr>
+      <tr><td><strong>Puntaje (tolerancia 0,3 %)</strong></td><td>8 de 8</td><td><strong>5 de 8</strong></td><td><strong>5 de 8</strong></td></tr>
+    </tbody>
+  </table></div>
+  <p class="src">Ejecutado el 16 de octubre de 2026 en Colab gratuito con GPU T4. El modelo muestrea al azar: otra corrida dará otros errores. Detalle honesto: en la primera versión del cuaderno, el propio calificador leyó «11,49 m» como 1149 y marcó mal una respuesta correcta; se corrigió y se agregó un control para ese caso.</p>
+  <p style="margin-top:10px"><a href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/06_ia_abierta.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir el cuaderno 06 en Colab" style="vertical-align:middle"></a> &nbsp;Entorno de ejecución → Cambiar tipo → T4 GPU, y luego Ejecutar todo.</p>
+  <p class="src">Fichas de los modelos: <a href="https://huggingface.co/Qwen/Qwen3-1.7B">Qwen3-1.7B</a> · <a href="https://huggingface.co/Qwen/Qwen3-0.6B">Qwen3-0.6B</a> · <a href="https://huggingface.co/Qwen/Qwen2.5-Math-1.5B-Instruct">Qwen2.5-Math-1.5B-Instruct</a>. No encontré un modelo pequeño especializado en física con ficha y licencia verificables.</p>
 
   <h2 class="sec">Ejercicio de 10 minutos: preguntarle a un repositorio</h2>
   <p>Gemini Notebook no lee GitHub, pero sí texto. GitIngest convierte un repositorio en un solo archivo de texto con el árbol de carpetas y el contenido de cada archivo. Es de código abierto (licencia MIT).</p>
