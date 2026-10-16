@@ -22,7 +22,8 @@ notebooks/                           ← cuadernos para Google Colab
 ├── 03_fisica_avanzada.ipynb         ← 5 ejemplos de métodos numéricos
 ├── 04_metodos_numericos.ipynb       ← 6 ejemplos ligados al plan 2009 (12 controles)
 ├── 05_matrices_tensores.ipynb       ← SymPy y NumPy: sistemas, Hilbert, tensores, Lorentz (18 controles)
-└── 06_ia_abierta.ipynb              ← un modelo abierto (Qwen3) en Colab, calificado por Python
+├── 06_ia_abierta.ipynb              ← un modelo abierto (Qwen3) en Colab, calificado por Python
+└── 07_asistente_programacion.ipynb  ← Ollama + Qwen2.5-Coder en Colab; el código generado se prueba
 wrangler.jsonc                       ← solo para la ruta Cloudflare Workers
 ```
 
@@ -57,6 +58,7 @@ Haga clic en el botón para abrir una copia editable. *Entorno de ejecución →
 | 04 · Métodos numéricos (plan 2009) | Elementos finitos 1D, Laplace 2D, fenómeno de Gibbs, onda y Courant, pozo finito, Ising frente a Onsager | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/04_metodos_numericos.ipynb) |
 | 05 · Ecuaciones, matrices y tensores | Kirchhoff con SymPy, matriz de Hilbert, modos normales, tensor de inercia con einsum, Levi-Civita, Lorentz | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/05_matrices_tensores.ipynb) |
 | 06 · Una IA abierta, calificada por Python | Qwen3 (0,6B o 1,7B) dentro de Colab: 8 preguntas de física con clave verificada, consistencia y comprobación de DOI | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/06_ia_abierta.ipynb) |
+| 07 · Asistente de programación gratuito | Ollama y Qwen2.5-Coder dentro de Colab escriben trapecio, RK4, bisección y el período exacto del péndulo; cada función pasa una prueba | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/07_asistente_programacion.ipynb) |
 
 Los botones abren los cuadernos directamente desde este repositorio público. Colab abre una copia: ejecutarla no modifica el repositorio. Para guardar cambios: *Archivo → Guardar una copia en Drive* o *Guardar una copia en GitHub*.
 

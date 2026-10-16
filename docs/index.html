@@ -72,6 +72,7 @@
   <div class="grid">
     <a class="card" href="herramientas/"><canvas data-prev="flujo"></canvas><div class="body"><h3>Herramientas de IA</h3><p>Perplexity, Gemini Notebook, ChatGPT y Codex, Claude, Google AI Studio, Z.ai, Wolfram|Alpha, Ollama y más: para qué sirve cada una, cuánto cuesta y qué hace con tus datos.</p><span class="tag ok">✔ datos con fuente y fecha</span></div></a>
     <a class="card" href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/06_ia_abierta.ipynb"><canvas data-prev="examen"></canvas><div class="body"><h3>Una IA abierta, calificada por Python</h3><p>Qwen3 corre gratis dentro de Colab y responde ocho preguntas de física. Python lo califica: 5 de 8, con un DOI inventado incluido.</p><span class="tag ok">✔ clave verificada por un segundo método</span></div></a>
+    <a class="card" href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/07_asistente_programacion.ipynb"><canvas data-prev="codigo"></canvas><div class="body"><h3>Un asistente de programación gratuito</h3><p>Ollama y Qwen2.5-Coder dentro de Colab escriben funciones numéricas; Python las prueba antes de usarlas, incluida una trampa con integrales elípticas.</p><span class="tag ok">✔ cada función pasa una prueba con respuesta conocida</span></div></a>
   </div>
 
   <h2 class="sec">Para empezar <small>Física Básica I</small></h2>
@@ -88,6 +89,7 @@
     <a href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/04_metodos_numericos.ipynb"><strong>04 · Métodos numéricos</strong><span>Elementos finitos, Laplace 2D, Gibbs, onda y condición de Courant, pozo finito, modelo de Ising.</span><span class="go">Abrir en Colab →</span></a>
     <a href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/05_matrices_tensores.ipynb"><strong>05 · Ecuaciones, matrices y tensores</strong><span>SymPy y NumPy: Kirchhoff en símbolos, Hilbert, modos normales, tensor de inercia, Levi-Civita y Lorentz.</span><span class="go">Abrir en Colab →</span></a>
     <a href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/06_ia_abierta.ipynb"><strong>06 · Una IA abierta, calificada por Python</strong><span>Un modelo Qwen3 corre dentro de Colab, responde ocho preguntas de física y Python lo califica con una clave verificada.</span><span class="go">Abrir en Colab →</span></a>
+    <a href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/07_asistente_programacion.ipynb"><strong>07 · Asistente de programación gratuito</strong><span>Ollama y Qwen2.5-Coder dentro de Colab: la IA escribe trapecio, RK4, bisección y el período exacto del péndulo; Python los prueba.</span><span class="go">Abrir en Colab →</span></a>
   </div>
 
   <h2 class="sec">Cómo se hizo cada recurso</h2>
@@ -168,6 +170,9 @@
       rows.forEach((r, i) => { if (i >= k) return; const y = 26 + i * (h - 34) / rows.length;
         ctx.fillStyle = Lab.css("--muted"); ctx.fillText(r[0], 14, y); ctx.fillText(r[1], w * .42, y);
         ctx.fillStyle = Lab.css(r[3] ? "--ok" : "--b"); ctx.fillText(r[2] + (r[3] ? "  ✔" : "  ✘"), w * .72, y); }); },
+    codigo(ctx, w, h, t) { const L = ["def rk4(f, t0, y0, t1, n):", "    h = (t1 - t0) / n", "    for _ in range(n):", "        k1 = f(t, y) ...", "", "✔ error 3,1 × 10⁻¹¹"];
+      const k = Math.floor(t * 1.2) % (L.length + 3); ctx.font = "12px 'JetBrains Mono', monospace";
+      L.forEach((l, i) => { if (i >= k) return; ctx.fillStyle = Lab.css(i === L.length - 1 ? "--ok" : i === 0 ? "--b" : "--muted"); ctx.fillText(l, 14, 24 + i * (h - 30) / L.length); }); },
     fem(ctx, w, h, t) { const N = 2 + Math.floor(t * .7) % 9, X = x => 14 + x * (w - 28), Y = y => h - 16 - y * (h - 34);
       ctx.strokeStyle = Lab.css("--a"); ctx.lineWidth = 5; ctx.beginPath();
       for (let i = 0; i <= 80; i++) { const x = i / 80; i ? ctx.lineTo(X(x), Y(Math.sin(Math.PI * x))) : ctx.moveTo(X(x), Y(0)); } ctx.stroke();
