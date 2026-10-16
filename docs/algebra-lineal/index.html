@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Matrices y Modos Normales</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/base.css">
+<style>
+  .mat{display:grid;grid-template-columns:auto 1fr 1fr auto;gap:6px 8px;align-items:center;font-family:var(--f-mono)}
+  .mat .br{font-size:3.2rem;line-height:1;color:var(--muted);grid-row:span 2}
+  .mat input{width:100%}
+  .mat output{display:block;text-align:center;font-size:.85rem}
+  .presets{display:flex;flex-wrap:wrap;gap:6px}
+  .presets button{font-size:.8rem;padding:4px 10px}
+  h2.part{font-family:var(--f-display);font-size:1.5rem;margin:30px 0 4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">← Todas las simulaciones</a>
+  <header>
+    <h1>Matrices que se ven: transformaciones y modos normales</h1>
+    <p>Una matriz es una máquina que deforma el plano. Sus autovectores son las direcciones que no giran, y su determinante es cuánto cambia el área. En física, esas mismas ideas dan los ejes principales de un tensor y los modos normales de un sistema acoplado. El cuaderno 05 de Colab hace lo mismo con SymPy y NumPy, y agrega tensores de inercia, Levi-Civita y transformaciones de Lorentz.</p>
+  </header>
+
+  <h2 class="part">1 · Una matriz 2 × 2 deformando el plano</h2>
+  <div class="main">
+    <section class="panel" aria-label="Matriz">
+      <h2>Matriz A</h2>
+      <div class="mat">
+        <span class="br">[</span>
+        <label><input id="a" type="range" min="-2" max="2" step="0.05" value="1.2"><output id="ao"></output></label>
+        <label><input id="b" type="range" min="-2" max="2" step="0.05" value="0.6"><output id="bo"></output></label>
+        <span class="br">]</span>
+        <label><input id="c" type="range" min="-2" max="2" step="0.05" value="0.6"><output id="co"></output></label>
+        <label><input id="d" type="range" min="-2" max="2" step="0.05" value="0.8"><output id="do"></output></label>
+      </div>
+      <h2>Ejemplos</h2>
+      <div class="presets">
+        <button type="button" class="ghost" data-m="1.2,0.6,0.6,0.8">Simétrica (tensor)</button>
+        <button type="button" class="ghost" data-m="0.87,-0.5,0.5,0.87">Rotación 30°</button>
+        <button type="button" class="ghost" data-m="1,1,0,1">Cizalla</button>
+        <button type="button" class="ghost" data-m="1,0,0,-1">Reflexión</button>
+        <button type="button" class="ghost" data-m="1,2,0.5,1">Singular</button>
+      </div>
+      <p class="note">Una matriz simétrica, como un tensor de esfuerzos o de inercia en 2D, siempre tiene autovalores reales y autovectores perpendiculares: sus ejes principales.</p>
+    </section>
+    <section class="stage" aria-label="Transformación">
+      <div class="legend"><span class="a">círculo unidad → elipse</span><span class="b">autovectores (direcciones que no giran)</span></div>
+      <canvas id="cv" role="img" aria-label="Rejilla deformada por la matriz, con la imagen del círculo unidad y los autovectores"></canvas>
+      <div class="stats">
+        <div class="stat"><b id="sdet">—</b><span>determinante = factor de área</span></div>
+        <div class="stat"><b id="str">—</b><span>traza</span></div>
+        <div class="stat"><b id="slam">—</b><span>autovalores λ₁, λ₂</span></div>
+        <div class="stat"><b id="ssig">—</b><span>semiejes de la elipse σ₁, σ₂</span></div>
+      </div>
+      <div class="check" id="check1"></div>
+    </section>
+  </div>
+
+  <h2 class="part">2 · Modos normales de masas acopladas</h2>
+  <div class="main">
+    <section class="panel" aria-label="Masas acopladas">
+      <h2>Sistema</h2>
+      <label for="N"><span class="row">Número de masas N <output id="No"></output></span><input id="N" type="range" min="2" max="8" step="1" value="4"></label>
+      <label for="modo">Movimiento
+        <select id="modo"></select>
+      </label>
+      <p class="note">Masas iguales m y resortes iguales k, con los extremos fijos. La matriz de rigidez K es tridiagonal; sus autovectores son los modos y sus autovalores, las frecuencias al cuadrado (en unidades de k/m). Aquí se calculan con el método de Jacobi, escrito en la propia página.</p>
+    </section>
+    <section class="stage" aria-label="Animación de los modos">
+      <canvas id="cm" role="img" aria-label="Animación de masas unidas por resortes"></canvas>
+      <canvas id="cw" role="img" aria-label="Frecuencias numéricas frente a la fórmula cerrada"></canvas>
+      <div class="check" id="check2"></div>
+      <div class="aula"><strong>Para el aula.</strong> Elijan «mezcla de los modos 1 y 2»: el movimiento parece desordenado, pero es la suma de dos movimientos simples. ¿Por qué la energía pasa de un lado al otro con un período fijo? (Pulsaciones: la diferencia de frecuencias.)</div>
+    </section>
+  </div>
+  <footer>Material del Módulo 8, «El auxiliar aumentado». Relacionado con FIS-240 Mecánica Clásica (modos normales, tensor de inercia) y Métodos Matemáticos (autovalores). Licencia CC BY 4.0.</footer>
+</div>
+
+<script src="../assets/plot.js"></script>
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+
+  // ---------- Parte 1: matriz 2x2 ----------
+  function eig2(a, b, c, d) {
+    const tr = a + d, det = a * d - b * c, disc = tr * tr / 4 - det;
+    if (disc < 0) return { real: false, re: tr / 2, im: Math.sqrt(-disc) };
+    const s = Math.sqrt(disc), l1 = tr / 2 + s, l2 = tr / 2 - s;
+    const vec = l => Math.abs(b) > 1e-12 ? [b, l - a] : Math.abs(c) > 1e-12 ? [l - d, c] : (Math.abs(l - a) < 1e-12 ? [1, 0] : [0, 1]);
+    const n = v => { const r = Math.hypot(v[0], v[1]); return [v[0] / r, v[1] / r]; };
+    return { real: true, l: [l1, l2], v: [n(vec(l1)), n(vec(l2))] };
+  }
+  function svd2(a, b, c, d) {                     // semiejes: raíces de los autovalores de AᵀA
+    const p = a * a + c * c, q = a * b + c * d, r = b * b + d * d, t = (p + r) / 2, s = Math.sqrt(((p - r) / 2) ** 2 + q * q);
+    return [Math.sqrt(t + s), Math.sqrt(Math.max(0, t - s))];
+  }
+  window.__alg = { eig2, svd2 };
+
+  function part1() {
+    const [a, b, c, d] = ["a", "b", "c", "d"].map(k => +$(k).value);
+    ["a", "b", "c", "d"].forEach(k => $(k + "o").textContent = Lab.fmt(+$(k).value, 2));
+    const { ctx, w, h } = Lab.fit($("cv"), 16 / 10);
+    ctx.fillStyle = Lab.css("--sheet"); ctx.fillRect(0, 0, w, h);
+    const S = Math.min(w, h) / 7, ox = w / 2, oy = h / 2;
+    const P = (x, y) => [ox + S * x, oy - S * y], T = (x, y) => P(a * x + b * y, c * x + d * y);
+    ctx.lineWidth = 1; ctx.strokeStyle = Lab.css("--grid");
+    for (let i = -6; i <= 6; i++) {                 // rejilla original
+      ctx.beginPath(); ctx.moveTo(...P(i, -6)); ctx.lineTo(...P(i, 6)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(...P(-6, i)); ctx.lineTo(...P(6, i)); ctx.stroke();
+    }
+    ctx.strokeStyle = Lab.css("--muted"); ctx.globalAlpha = .55;
+    for (let i = -4; i <= 4; i++) {                 // rejilla transformada
+      ctx.beginPath(); ctx.moveTo(...T(i, -4)); ctx.lineTo(...T(i, 4)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(...T(-4, i)); ctx.lineTo(...T(4, i)); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    // cuadrado unidad → paralelogramo
+    const sq = [[0, 0], [1, 0], [1, 1], [0, 1]].map(([x, y]) => T(x, y));
+    ctx.fillStyle = Lab.css("--b"); ctx.globalAlpha = .18; ctx.beginPath(); sq.forEach((p, i) => i ? ctx.lineTo(...p) : ctx.moveTo(...p)); ctx.fill(); ctx.globalAlpha = 1;
+    // círculo → elipse
+    ctx.strokeStyle = Lab.css("--grid-strong"); ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.arc(ox, oy, S, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle = Lab.css("--a"); ctx.lineWidth = 3; ctx.beginPath();
+    let maxR = 0, minR = Infinity;
+    for (let k = 0; k <= 3600; k++) { const t = 2 * Math.PI * k / 3600, x = a * Math.cos(t) + b * Math.sin(t), y = c * Math.cos(t) + d * Math.sin(t);
+      const r = Math.hypot(x, y); maxR = Math.max(maxR, r); minR = Math.min(minR, r); k ? ctx.lineTo(...P(x, y)) : ctx.moveTo(...P(x, y)); }
+    ctx.stroke();
+    // autovectores
+    const E = eig2(a, b, c, d);
+    if (E.real) E.v.forEach((v, i) => {
+      ctx.strokeStyle = Lab.css("--b"); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(...P(-6 * v[0], -6 * v[1])); ctx.lineTo(...P(6 * v[0], 6 * v[1])); ctx.stroke();
+      ctx.fillStyle = Lab.css("--b"); const p = P(E.l[i] * v[0], E.l[i] * v[1]); ctx.beginPath(); ctx.arc(p[0], p[1], 6, 0, 7); ctx.fill();
+      ctx.font = "13px 'JetBrains Mono', monospace"; ctx.fillText("λ" + (i ? "₂" : "₁") + " = " + Lab.fmt(E.l[i], 2), p[0] + 9, p[1] - 9);
+    });
+    // estadísticas y controles independientes
+    const det = a * d - b * c, tr = a + d, [s1, s2] = svd2(a, b, c, d);
+    let area = 0; for (let i = 0; i < 4; i++) { const [x1, y1] = sq[i], [x2, y2] = sq[(i + 1) % 4]; area += x1 * y2 - x2 * y1; }
+    area = Math.abs(area) / 2 / (S * S);             // fórmula del agrimensor sobre los vértices dibujados
+    $("sdet").textContent = Lab.fmt(det, 3); $("str").textContent = Lab.fmt(tr, 3);
+    $("slam").textContent = E.real ? Lab.fmt(E.l[0], 3) + " ; " + Lab.fmt(E.l[1], 3) : Lab.fmt(E.re, 2) + " ± " + Lab.fmt(E.im, 2) + " i";
+    $("ssig").textContent = Lab.fmt(s1, 3) + " ; " + Lab.fmt(s2, 3);
+    const eA = Math.abs(area - Math.abs(det)), eS = Math.abs(maxR - s1) / Math.max(s1, 1e-9);
+    const ok = eA < 1e-9 && eS < 1e-5 && Math.abs(minR - s2) < 2e-3 * Math.max(s1, 1e-9);   // el mínimo muestreado tiene error ~ σ₁·Δθ cuando la elipse es casi un segmento
+    const sym = Math.abs(b - c) < 1e-9;
+    $("check1").className = "check" + (ok ? "" : " bad");
+    $("check1").innerHTML = `<div><strong>${ok ? "Control superado" : "Revisar"}.</strong> Área del paralelogramo medida en el dibujo = ${Lab.fmt(area, 4)} = |det A|. Semiejes medidos sobre 3600 puntos de la elipse = valores singulares calculados con AᵀA.</div>` +
+      (E.real ? "" : `<div>Autovalores complejos: ninguna dirección se queda quieta; la matriz rota el plano.</div>`) +
+      (sym && E.real ? `<div>Matriz simétrica: los autovectores son perpendiculares (producto escalar ${Lab.sci(Math.abs(E.v[0][0] * E.v[1][0] + E.v[0][1] * E.v[1][1]))}) y los semiejes coinciden con |λ|.</div>` : "") +
+      (Math.abs(det) < 1e-9 ? `<div>det A = 0: el plano se aplasta sobre una recta y el sistema A x = b no tiene solución única.</div>` : "");
+  }
+  ["a", "b", "c", "d"].forEach(k => $(k).addEventListener("input", part1));
+  document.querySelectorAll("[data-m]").forEach(btn => btn.addEventListener("click", () => {
+    btn.dataset.m.split(",").forEach((v, i) => $("abcd"[i]).value = v); part1();
+  }));
+
+  // ---------- Parte 2: modos normales ----------
+  function jacobi(A) {                              // autovalores y autovectores de una matriz simétrica
+    const n = A.length, a = A.map(r => r.slice()), V = a.map((_, i) => a.map((_, j) => +(i === j)));
+    for (let sweep = 0; sweep < 100; sweep++) {
+      let off = 0; for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) off += a[i][j] ** 2;
+      if (off < 1e-30) break;
+      for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) {
+        if (Math.abs(a[p][q]) < 1e-300) continue;
+        const th = (a[q][q] - a[p][p]) / (2 * a[p][q]), t = Math.sign(th || 1) / (Math.abs(th) + Math.sqrt(th * th + 1)), c = 1 / Math.sqrt(t * t + 1), s = t * c;
+        for (let k = 0; k < n; k++) { const akp = a[k][p], akq = a[k][q]; a[k][p] = c * akp - s * akq; a[k][q] = s * akp + c * akq; }
+        for (let k = 0; k < n; k++) { const apk = a[p][k], aqk = a[q][k]; a[p][k] = c * apk - s * aqk; a[q][k] = s * apk + c * aqk; }
+        for (let k = 0; k < n; k++) { const vkp = V[k][p], vkq = V[k][q]; V[k][p] = c * vkp - s * vkq; V[k][q] = s * vkp + c * vkq; }
+      }
+    }
+    const idx = a.map((_, i) => i).sort((i, j) => a[i][i] - a[j][j]);
+    return { w2: idx.map(i => a[i][i]), V: idx.map(i => V.map(r => r[i])) };
+  }
+  const Kmat = N => Array.from({ length: N }, (_, i) => Array.from({ length: N }, (_, j) => i === j ? 2 : Math.abs(i - j) === 1 ? -1 : 0));
+  window.__alg.jacobi = jacobi; window.__alg.Kmat = Kmat;
+
+  let modes, N, t0 = performance.now();
+  function part2() {
+    N = +$("N").value; $("No").textContent = N;
+    const prev = $("modo").value;
+    $("modo").innerHTML = Array.from({ length: N }, (_, i) => `<option value="${i}">Modo ${i + 1}</option>`).join("") + `<option value="mix">Mezcla de los modos 1 y 2</option>`;
+    $("modo").value = [...$("modo").options].some(o => o.value === prev) ? prev : "0";
+    modes = jacobi(Kmat(N));
+    const wn = modes.w2.map(Math.sqrt), wex = wn.map((_, i) => 2 * Math.sin((i + 1) * Math.PI / (2 * (N + 1))));
+    const err = Math.max(...wn.map((x, i) => Math.abs(x - wex[i])));
+    let orth = 0; modes.V.forEach((u, i) => modes.V.forEach((v, j) => { const dp = u.reduce((s, x, k) => s + x * v[k], 0); orth = Math.max(orth, Math.abs(dp - (i === j))); }));
+    const xs = Array.from({ length: 200 }, (_, i) => 1 + (N - 1) * i / 199);
+    Lab.plot($("cw"), 3, [
+      { xs, ys: xs.map(n => 2 * Math.sin(n * Math.PI / (2 * (N + 1)))), color: "--a", width: 5 },
+      { xs: wn.map((_, i) => i + 1), ys: wn, color: "--b", width: 0, points: true }
+    ], { xLabel: "número de modo n (curva: 2 sin(nπ/2(N+1)); puntos: Jacobi)", yLabel: "ω √(m/k)", ymin: 0, ymax: 2, zeroBase: true });
+    const ok = err < 1e-10 && orth < 1e-10;
+    $("check2").className = "check" + (ok ? "" : " bad");
+    $("check2").innerHTML = `<div><strong>${ok ? "Control superado" : "Revisar"}.</strong> Las ${N} frecuencias de Jacobi coinciden con la fórmula cerrada (diferencia máxima ${Lab.sci(err)}) y los modos son ortonormales (desvío ${Lab.sci(orth)}).</div>`;
+  }
+  function anim(now) {
+    const t = (now - t0) / 1000, { ctx, w, h } = Lab.fit($("cm"), 16 / 5);
+    ctx.fillStyle = Lab.css("--sheet"); ctx.fillRect(0, 0, w, h);
+    const sel = $("modo").value, L = 40, gap = (w - 2 * L) / (N + 1), A = gap * 0.35, y = h * 0.55, W = 2 * Math.PI * 0.35;
+    const disp = Array.from({ length: N }, (_, j) => {
+      if (sel === "mix") return 0.7 * A * (modes.V[0][j] * Math.cos(W * Math.sqrt(modes.w2[0]) * t) + modes.V[1][j] * Math.cos(W * Math.sqrt(modes.w2[1]) * t)) / Math.max(...modes.V[0].map(Math.abs));
+      const k = +sel; return A * modes.V[k][j] / Math.max(...modes.V[k].map(Math.abs)) * Math.cos(W * Math.sqrt(modes.w2[k]) * t);
+    });
+    const xpos = [L, ...disp.map((d, j) => L + gap * (j + 1) + (Lab.reduced() ? 0 : d)), w - L];
+    ctx.fillStyle = Lab.css("--ink"); ctx.fillRect(L - 8, y - 30, 8, 60); ctx.fillRect(w - L, y - 30, 8, 60);
+    ctx.strokeStyle = Lab.css("--muted"); ctx.lineWidth = 1.5;
+    for (let j = 0; j <= N; j++) { const x1 = xpos[j] + (j ? 14 : 0), x2 = xpos[j + 1] - (j < N ? 14 : 0), coils = 8; ctx.beginPath(); ctx.moveTo(x1, y);
+      for (let k = 1; k < coils * 2; k++) ctx.lineTo(x1 + (x2 - x1) * k / (coils * 2), y + (k % 2 ? -8 : 8)); ctx.lineTo(x2, y); ctx.stroke(); }
+    ctx.fillStyle = Lab.css("--b"); for (let j = 1; j <= N; j++) ctx.fillRect(xpos[j] - 14, y - 14, 28, 28);
+    // forma del modo (desplazamientos dibujados hacia arriba)
+    ctx.strokeStyle = Lab.css("--a"); ctx.lineWidth = 2; ctx.setLineDash([5, 4]); ctx.beginPath();
+    xpos.forEach((_, j) => { const px = L + gap * j, py = h * 0.18 - (j && j <= N ? disp[j - 1] : 0) * 0.6; j ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
+    ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = Lab.css("--muted"); ctx.font = "12px 'Atkinson Hyperlegible', sans-serif";
+    ctx.fillText("línea punteada: desplazamiento de cada masa, dibujado en vertical", L, h - 10);
+    requestAnimationFrame(anim);
+  }
+  $("N").addEventListener("input", part2); $("modo").addEventListener("input", () => {});
+  window.addEventListener("resize", () => { part1(); part2(); });
+  part1(); part2(); requestAnimationFrame(anim);
+})();
+</script>
+</body>
+</html>

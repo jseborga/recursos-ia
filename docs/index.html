@@ -64,6 +64,8 @@
   <div class="grid">
     <a class="card" href="elementos-finitos/"><canvas data-prev="fem"></canvas><div class="body"><h3>Elementos finitos 1D</h3><p>Rectas por tramos que se acercan a la solución. El error baja como h² y en los nodos es casi exacto. FIS-243, MAT-132.</p><span class="tag ok">✔ control: orden de convergencia</span></div></a>
     <a class="card" href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/04_metodos_numericos.ipynb"><canvas data-prev="metodos"></canvas><div class="body"><h3>Cuaderno 04 en Colab</h3><p>FEM, Laplace 2D, fenómeno de Gibbs, ecuación de onda, pozo finito e Ising. FIS-242/252/253, FIS-360/370/380.</p><span class="tag ok">✔ 12 controles automáticos</span></div></a>
+    <a class="card" href="algebra-lineal/"><canvas data-prev="matriz"></canvas><div class="body"><h3>Matrices que se ven</h3><p>Una matriz deforma el plano: autovectores, determinante y elipse. Luego, modos normales de masas acopladas. FIS-240.</p><span class="tag ok">✔ control: área medida = |det A|</span></div></a>
+    <a class="card" href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/05_matrices_tensores.ipynb"><canvas data-prev="tensor"></canvas><div class="body"><h3>Cuaderno 05: ecuaciones y tensores</h3><p>SymPy y NumPy: Kirchhoff en símbolos, la matriz de Hilbert que engaña, tensor de inercia, Levi-Civita y Lorentz.</p><span class="tag ok">✔ 18 controles automáticos</span></div></a>
     <a class="card" href="herramientas/"><canvas data-prev="flujo"></canvas><div class="body"><h3>Herramientas de IA</h3><p>Perplexity, Gemini Notebook, ChatGPT y Codex, Claude y Claude Code, Z.ai, Colab y Copilot: para qué sirve cada una y cuánto cuesta.</p><span class="tag ok">✔ datos con fuente y fecha</span></div></a>
   </div>
 
@@ -79,6 +81,7 @@
     <a href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/02_fisica_clasica.ipynb"><strong>02 · Física clásica</strong><span>Péndulo de amplitud grande, caída con aire, resonancia, RC, choques y ajuste de g.</span><span class="go">Abrir en Colab →</span></a>
     <a href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/03_fisica_avanzada.ipynb"><strong>03 · Física avanzada</strong><span>Kepler, péndulo doble, ecuación del calor, oscilador cuántico e incertidumbre por Monte Carlo.</span><span class="go">Abrir en Colab →</span></a>
     <a href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/04_metodos_numericos.ipynb"><strong>04 · Métodos numéricos</strong><span>Elementos finitos, Laplace 2D, Gibbs, onda y condición de Courant, pozo finito, modelo de Ising.</span><span class="go">Abrir en Colab →</span></a>
+    <a href="https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/05_matrices_tensores.ipynb"><strong>05 · Ecuaciones, matrices y tensores</strong><span>SymPy y NumPy: Kirchhoff en símbolos, Hilbert, modos normales, tensor de inercia, Levi-Civita y Lorentz.</span><span class="go">Abrir en Colab →</span></a>
   </div>
 
   <h2 class="sec">Cómo se hizo cada recurso</h2>
@@ -146,6 +149,14 @@
       ctx.strokeStyle = Lab.css("--b"); ctx.lineWidth = 3; ctx.beginPath(); let lx = 0, ly = 0;
       for (let i = 0; i <= 60 * T; i++) { const s = i / 60, px = 14 + s * .62 * (w - 28), py = h - 14 - 3.3 * s * (1 - s ** 1.6) * (h - 30) * .9; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); lx = px; ly = py; } ctx.stroke();
       ctx.fillStyle = Lab.css("--b"); ctx.beginPath(); ctx.arc(lx, ly, 5, 0, 7); ctx.fill(); },
+    matriz(ctx, w, h, t) { const th = .6 * Math.sin(t * .5), A = [1.2 + .3 * Math.cos(t * .4), .6 + .4 * th, .6 + .4 * th, .8], ox = w / 2, oy = h / 2, S = h * .22;
+      ctx.strokeStyle = Lab.css("--grid"); for (let i = -3; i <= 3; i++) { ctx.beginPath(); ctx.moveTo(ox + S * (A[0] * i - A[1] * 3), oy - S * (A[2] * i - A[3] * 3)); ctx.lineTo(ox + S * (A[0] * i + A[1] * 3), oy - S * (A[2] * i + A[3] * 3)); ctx.stroke(); }
+      ctx.strokeStyle = Lab.css("--a"); ctx.lineWidth = 3; ctx.beginPath();
+      for (let k = 0; k <= 80; k++) { const a = 2 * Math.PI * k / 80, x = A[0] * Math.cos(a) + A[1] * Math.sin(a), y = A[2] * Math.cos(a) + A[3] * Math.sin(a); k ? ctx.lineTo(ox + S * x, oy - S * y) : ctx.moveTo(ox + S * x, oy - S * y); } ctx.stroke(); ctx.lineWidth = 1; },
+    tensor(ctx, w, h, t) { ctx.font = "600 15px 'JetBrains Mono', monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      const rows = ["εᵢⱼₖ εᵢₘₙ = δⱼₘδₖₙ − δⱼₙδₖₘ", "Λᵀ η Λ = η", "Iᵢⱼ = Σ m (r²δᵢⱼ − rᵢrⱼ)"], k = Math.floor(t * .7) % 3;
+      rows.forEach((r, i) => { ctx.fillStyle = Lab.css(i === k ? "--b" : "--muted"); ctx.fillText(r + (i === k ? "  ✔" : ""), w / 2, h * (i + 1) / 4); });
+      ctx.textAlign = "left"; ctx.textBaseline = "alphabetic"; },
     fem(ctx, w, h, t) { const N = 2 + Math.floor(t * .7) % 9, X = x => 14 + x * (w - 28), Y = y => h - 16 - y * (h - 34);
       ctx.strokeStyle = Lab.css("--a"); ctx.lineWidth = 5; ctx.beginPath();
       for (let i = 0; i <= 80; i++) { const x = i / 80; i ? ctx.lineTo(X(x), Y(Math.sin(Math.PI * x))) : ctx.moveTo(X(x), Y(0)); } ctx.stroke();

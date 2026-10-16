@@ -11,6 +11,7 @@ docs/                                ← sitio web: https://jseborga.github.io/r
 ├── calor/                           ← ecuación del calor y estabilidad r ≤ ½ (control: serie de Fourier)
 ├── resonancia/                      ← oscilador forzado (control: amplitud analítica)
 ├── elementos-finitos/               ← FEM 1D, FIS-243/MAT-132 (control: orden de convergencia h²)
+├── algebra-lineal/                  ← matrices 2×2 y modos normales (control: área = |det A|, fórmula cerrada)
 ├── herramientas/                    ← guía de herramientas de IA con fuentes y fechas
 ├── tiro-parabolico/                 ← arrastre del aire en La Paz (control: caso sin aire)
 ├── banco-problemas/                 ← práctica con datos por estudiante
@@ -19,7 +20,8 @@ notebooks/                           ← cuadernos para Google Colab
 ├── 01_verificacion_taller.ipynb     ← verifica las dos páginas básicas
 ├── 02_fisica_clasica.ipynb          ← 6 ejemplos de Física Básica
 ├── 03_fisica_avanzada.ipynb         ← 5 ejemplos de métodos numéricos
-└── 04_metodos_numericos.ipynb       ← 6 ejemplos ligados al plan 2009 (12 controles)
+├── 04_metodos_numericos.ipynb       ← 6 ejemplos ligados al plan 2009 (12 controles)
+└── 05_matrices_tensores.ipynb       ← SymPy y NumPy: sistemas, Hilbert, tensores, Lorentz (18 controles)
 wrangler.jsonc                       ← solo para la ruta Cloudflare Workers
 ```
 
@@ -34,6 +36,7 @@ Sitio: **https://jseborga.github.io/recursos-ia/**. Cada simulación muestra en 
 | [Ecuación del calor](https://jseborga.github.io/recursos-ia/calor/) | r = 0,50 exacto, r = 0,52 explota | Serie de Fourier exacta |
 | [Resonancia](https://jseborga.github.io/recursos-ia/resonancia/) | Transitorio, régimen estacionario y curva A(ω) | Amplitud analítica (diferencia < 0,01 %) |
 | [Elementos finitos 1D](https://jseborga.github.io/recursos-ia/elementos-finitos/) | Rectas por tramos frente a la solución exacta; carga puntual | Orden de convergencia medido ≈ 2 |
+| [Matrices que se ven](https://jseborga.github.io/recursos-ia/algebra-lineal/) | Transformación lineal 2×2, autovectores; modos normales de N masas | Área medida = \|det A\|; frecuencias = fórmula cerrada |
 | [Tiro parabólico](https://jseborga.github.io/recursos-ia/tiro-parabolico/) | Arrastre del aire con ρ de La Paz | Caso sin aire = fórmula analítica |
 | [Banco de problemas](https://jseborga.github.io/recursos-ia/banco-problemas/) | Datos distintos por estudiante | Respuestas recalculadas en Python |
 
@@ -51,6 +54,7 @@ Haga clic en el botón para abrir una copia editable. *Entorno de ejecución →
 | 02 · Física clásica | Péndulo de amplitud grande, caída con aire, resonancia, circuito RC, choques, ajuste de *g* con incertidumbres | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/02_fisica_clasica.ipynb) |
 | 03 · Física avanzada | Kepler (Verlet frente a RK4), péndulo doble caótico, ecuación del calor y estabilidad, oscilador cuántico, incertidumbre por Monte Carlo | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/03_fisica_avanzada.ipynb) |
 | 04 · Métodos numéricos (plan 2009) | Elementos finitos 1D, Laplace 2D, fenómeno de Gibbs, onda y Courant, pozo finito, Ising frente a Onsager | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/04_metodos_numericos.ipynb) |
+| 05 · Ecuaciones, matrices y tensores | Kirchhoff con SymPy, matriz de Hilbert, modos normales, tensor de inercia con einsum, Levi-Civita, Lorentz | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jseborga/recursos-ia/blob/main/notebooks/05_matrices_tensores.ipynb) |
 
 Los botones abren los cuadernos directamente desde este repositorio público. Colab abre una copia: ejecutarla no modifica el repositorio. Para guardar cambios: *Archivo → Guardar una copia en Drive* o *Guardar una copia en GitHub*.
 
